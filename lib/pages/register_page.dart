@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/auth_service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -11,15 +12,43 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final _formGlobalKey = GlobalKey<FormState>();
 
+  // Thêm controller cho tất cả field
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  String _username = "";
-  String _email = "";
+  bool _isLoading = false;
+
+  void _register() async {
+    if (!_formGlobalKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final result = await AuthService.register(
+      username: _usernameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result['success'] ? "Đăng ký thành công!" : result['message']),
+        backgroundColor: result['success'] ? Colors.green : Colors.red,
+      ),
+    );
+
+    if (result['success']) {
+      Navigator.pop(context);
+    }
+  }
 
   @override
   void dispose() {
-    // giải phóng controller khi widget bị huỷ
+    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -57,87 +86,55 @@ class _RegisterState extends State<Register> {
                 key: _formGlobalKey,
                 child: Column(
                   children: [
-                    // username
+                    // Username
                     _buildTextField(
                       label: "Tên đăng nhập",
+                      controller: _usernameController,
                       validator: (value) =>
-                      value == null || value.isEmpty
-                          ? "Tên đăng nhập không được để trống."
-                          : null,
-                      onSaved: (value) => _username = value!,
+                      value == null || value.isEmpty ? "Tên đăng nhập không được để trống." : null,
                     ),
                     SizedBox(height: 16),
-                    // email
+                    // Email
                     _buildTextField(
                       label: "Email",
+                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Email không được để trống.";
-                        }
+                        if (value == null || value.isEmpty) return "Email không được để trống.";
                         final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                        if (!emailRegex.hasMatch(value)) {
-                          return "Email không hợp lệ.";
-                        }
+                        if (!emailRegex.hasMatch(value)) return "Email không hợp lệ.";
                         return null;
                       },
-                      onSaved: (value) => _email = value!,
                     ),
                     SizedBox(height: 16),
-                    // password
+                    // Password
                     _buildTextField(
                       label: "Mật khẩu",
                       obscureText: true,
                       controller: _passwordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Mật khẩu không được để trống.";
-                        }
-                        if (value.length < 6) {
-                          return "Mật khẩu phải có ít nhất 6 ký tự.";
-                        }
+                        if (value == null || value.isEmpty) return "Mật khẩu không được để trống.";
+                        if (value.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự.";
                         return null;
                       },
                     ),
                     SizedBox(height: 16),
-                    // confirm password
+                    // Confirm password
                     _buildTextField(
                       label: "Nhập lại mật khẩu",
                       obscureText: true,
                       controller: _confirmPasswordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Vui lòng nhập lại mật khẩu.";
-                        }
-                        if (value != _passwordController.text) {
-                          return "Mật khẩu không khớp.";
-                        }
+                        if (value == null || value.isEmpty) return "Vui lòng nhập lại mật khẩu.";
+                        if (value != _passwordController.text) return "Mật khẩu không khớp.";
                         return null;
                       },
                     ),
                     SizedBox(height: 20),
-                    FilledButton(
-                      onPressed: () {
-                        if (_formGlobalKey.currentState!.validate()) {
-                          _formGlobalKey.currentState!.save();
-
-                          print("Username: $_username");
-                          print("Email: $_email");
-                          print("Password: ${_passwordController.text}");
-                          print("Confirm: ${_confirmPasswordController.text}");
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Đăng ký thành công!"),
-                              backgroundColor: Colors.green,
-                              duration: Duration(seconds: 2),
-                            )
-                          );
-                          
-                          // Quay lai login
-                          Navigator.pop(context);
-                        }
-                      },
+                    _isLoading
+                        ? CircularProgressIndicator()
+                        : FilledButton(
+                      onPressed: _register,
                       style: FilledButton.styleFrom(
                         backgroundColor: Color(0xFFF03F9C),
                         foregroundColor: Colors.white,
@@ -149,19 +146,17 @@ class _RegisterState extends State<Register> {
                       child: Text("Đăng ký"),
                     ),
                     ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF03F9C),
-                          foregroundColor: Colors.white,
-                          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF03F9C),
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
+                      ),
                       child: Text("Đăng nhập"),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -178,7 +173,6 @@ class _RegisterState extends State<Register> {
     TextEditingController? controller,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
-    void Function(String?)? onSaved,
   }) {
     return SizedBox(
       width: 300,
@@ -198,7 +192,6 @@ class _RegisterState extends State<Register> {
         style: TextStyle(color: Colors.white, fontSize: 16),
         cursorColor: Colors.white,
         validator: validator,
-        onSaved: onSaved,
       ),
     );
   }
