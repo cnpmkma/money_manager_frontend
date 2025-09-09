@@ -9,7 +9,7 @@ class AuthService {
     required String username,
     required String email,
     required String password
-}) async {
+  }) async {
     final url = Uri.parse("$baseUrl/register");
 
     try {
@@ -34,6 +34,23 @@ class AuthService {
     }
     catch (e) {
       return {"success": false, "message": e.toString()};
+    }
+  }
+
+  static Future<Map<String, dynamic>> login({required String username, required String password}) async {
+    final response = await post(
+      Uri.parse("$baseUrl/login"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        'username': username,
+        'password': password
+      })
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Đăng nhập thất bại: ${response.body}");
     }
   }
 }

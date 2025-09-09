@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,14 +12,36 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final result = await AuthService.login(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text.trim()
+      );
+
+      final token = result['access_token'];
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
+
+      print("Login thành công! Token: $token");
+
+      Navigator.pushReplacementNamed(context, '/main');
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -56,10 +80,10 @@ class _LoginState extends State<Login> {
                     SizedBox(
                       width: 300,
                       child: TextFormField(
-                        controller: _emailController,
+                        controller: _usernameController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                          hintText: "Email",
+                          hintText: "Tên đăng nhập",
                           hintStyle: TextStyle(color: Colors.white, fontSize: 16),
                           filled: true,
                           fillColor: Color(0xFFFF93CC),
@@ -72,12 +96,7 @@ class _LoginState extends State<Login> {
                         cursorColor: Colors.white,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Email không được để trống.";
-                          }
-                          final emailRegex =
-                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                          if (!emailRegex.hasMatch(value)) {
-                            return "Email không hợp lệ.";
+                            return "Tên đăng nhập không được để trống.";
                           }
                           return null;
                         },
@@ -115,13 +134,7 @@ class _LoginState extends State<Login> {
               ),
               SizedBox(height: 28),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // xử lý đăng nhập
-                    print("Email: ${_emailController.text}");
-                    print("Password: ${_passwordController.text}");
-                  }
-                },
+                onPressed: _handleLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFF03F9C),
                   foregroundColor: Colors.white,
