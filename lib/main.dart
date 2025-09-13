@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Money MATE",
       theme: ThemeData(
-        primarySwatch: Colors.pink,
+        primarySwatch: Colors.green,
         textTheme: GoogleFonts.interTextTheme(),
         scaffoldBackgroundColor: Colors.grey[100],
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
