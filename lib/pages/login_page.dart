@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -32,34 +31,64 @@ class _LoginState extends State<Login> {
       );
 
       if (result['success'] == true) {
-        // Show snackbar success
+        // Show success snackbar floating
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message']),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
           ),
         );
 
-        // Điều hướng sang Main
+        await Future.delayed(const Duration(milliseconds: 500));
+
         Navigator.pushReplacementNamed(context, '/main');
       } else {
-        // Show snackbar lỗi
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['message']),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showErrorSnack(result['message']);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Có lỗi xảy ra: ${e.toString()}"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showErrorSnack("Có lỗi xảy ra: ${e.toString()}");
     }
+  }
+
+  void _showErrorSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    bool obscureText = false,
+  }) {
+    return SizedBox(
+      width: 300,
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.white, fontSize: 16),
+          filled: true,
+          fillColor: const Color(0xFFFF93CC),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+        cursorColor: Colors.white,
+        validator: (value) =>
+            (value == null || value.isEmpty) ? "$hint không được để trống." : null,
+      ),
+    );
   }
 
   @override
@@ -68,7 +97,7 @@ class _LoginState extends State<Login> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFE0A2D6), Color(0xFFFFF8FC)],
             begin: Alignment.topCenter,
@@ -76,124 +105,64 @@ class _LoginState extends State<Login> {
           ),
         ),
         child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 100),
           child: Column(
             children: [
-              SizedBox(height: 100),
               Image.asset("assets/money_logo.png"),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 "Money Mate",
                 style: GoogleFonts.aclonica(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF444B3C),
+                  color: const Color(0xFF444B3C),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    // email
-                    SizedBox(
-                      width: 300,
-                      child: TextFormField(
-                        controller: _usernameController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          hintText: "Tên đăng nhập",
-                          hintStyle: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          filled: true,
-                          fillColor: Color(0xFFFF93CC),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                        cursorColor: Colors.white,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Tên đăng nhập không được để trống.";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    // password
-                    SizedBox(
-                      width: 300,
-                      child: TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: "Mật khẩu",
-                          hintStyle: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          filled: true,
-                          fillColor: Color(0xFFFF93CC),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                        cursorColor: Colors.white,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Mật khẩu không được để trống.";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
+                    _buildTextField(controller: _usernameController, hint: "Tên đăng nhập"),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                        controller: _passwordController, hint: "Mật khẩu", obscureText: true),
                   ],
                 ),
               ),
-              SizedBox(height: 28),
+              const SizedBox(height: 28),
               ElevatedButton(
                 onPressed: _handleLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF03F9C),
+                  backgroundColor: const Color(0xFFF03F9C),
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  textStyle: TextStyle(
+                  textStyle: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: Text("Đăng nhập"),
+                child: const Text("Đăng nhập"),
               ),
-              SizedBox(height: 16),
-              Column(
+              const SizedBox(height: 16),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Bạn chưa có tài khoản?"),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/register");
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFF03F9C),
-                      foregroundColor: Colors.white,
-                      textStyle: TextStyle(
+                  const Text("Bạn chưa có tài khoản? "),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, "/register"),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFFF03F9C),
+                      textStyle: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
                     ),
-                    child: Text("Đăng ký ngay"),
+                    child: const Text("Đăng ký ngay"),
                   ),
                 ],
               ),

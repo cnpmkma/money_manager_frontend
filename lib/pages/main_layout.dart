@@ -39,7 +39,6 @@ class _MainLayoutState extends State<MainLayout> {
   void _goTo(MainPage page) {
     setState(() => _currentPage = page);
 
-    // chỉ jumpToPage khi PageController attached
     if (page != MainPage.walletList && _pageController.hasClients) {
       _pageController.jumpToPage(_mainPageIndex(page));
     }
@@ -53,7 +52,6 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
-  // Map MainPage -> PageView index (skip placeholder)
   int _mainPageIndex(MainPage page) {
     switch (page) {
       case MainPage.home:
@@ -120,7 +118,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.pinkAccent,
         onPressed: _openAddTransaction,
         child: const Icon(Icons.add, size: 32, color: Colors.white),
       ),
