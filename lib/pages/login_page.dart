@@ -37,6 +37,7 @@ class _LoginState extends State<Login> {
           SnackBar(
             content: Text(result['message']),
             backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
           ),
         );
 

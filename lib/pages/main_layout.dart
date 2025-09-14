@@ -6,6 +6,8 @@ import 'package:money_manager_frontend/pages/transaction_page.dart';
 import 'package:money_manager_frontend/pages/wallet_list_page.dart';
 import 'home_page.dart';
 
+enum MainPage { home, transactions, budget, account, walletList }
+
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
@@ -14,79 +16,133 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _current_index = 0;
+  MainPage _currentPage = MainPage.home;
+  late final PageController _pageController;
 
-  late final List<Widget> _pages;
+  late final Map<MainPage, Widget> _pages;
 
   @override
   void initState() {
     super.initState();
 
-    _pages = [
-      Home(
-        onViewAllWallets: () {
-          setState(() {
-            _current_index = 5; // chuyển sang WalletListPage
-          });
-        },
-      ),
-      const TransactionPage(),
-      const Placeholder(),
-      const BudgetPage(),
-      const AccountPage(),
-      WalletListPage(
-        onBack: () {
-          setState(() {
-            _current_index = 0; // quay về Home
-          });
-        },
-      ), // index 5
-    ];
+    _pageController = PageController(initialPage: 0);
+
+    _pages = {
+      MainPage.home: Home(onViewAllWallets: () => _goTo(MainPage.walletList)),
+      MainPage.transactions: const TransactionPage(),
+      MainPage.budget: const BudgetPage(),
+      MainPage.account: const AccountPage(),
+      MainPage.walletList: WalletListPage(onBack: () => _goTo(MainPage.home)),
+    };
+  }
+
+  void _goTo(MainPage page) {
+    setState(() => _currentPage = page);
+
+    // chỉ jumpToPage khi PageController attached
+    if (page != MainPage.walletList && _pageController.hasClients) {
+      _pageController.jumpToPage(_mainPageIndex(page));
+    }
+  }
+
+  void _openAddTransaction() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const AddTransactionPage(),
+    );
+  }
+
+  // Map MainPage -> PageView index (skip placeholder)
+  int _mainPageIndex(MainPage page) {
+    switch (page) {
+      case MainPage.home:
+        return 0;
+      case MainPage.transactions:
+        return 1;
+      case MainPage.budget:
+        return 2;
+      case MainPage.account:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
+  MainPage _pageFromIndex(int index) {
+    switch (index) {
+      case 0:
+        return MainPage.home;
+      case 1:
+        return MainPage.transactions;
+      case 2:
+        return MainPage.budget;
+      case 3:
+        return MainPage.account;
+      default:
+        return MainPage.home;
+    }
+  }
+
+  int _bottomNavIndex() {
+    switch (_currentPage) {
+      case MainPage.home:
+        return 0;
+      case MainPage.transactions:
+        return 1;
+      case MainPage.budget:
+        return 3; // skip placeholder
+      case MainPage.account:
+        return 4;
+      default:
+        return 0;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_current_index],
+      body: _currentPage == MainPage.walletList
+          ? _pages[MainPage.walletList]
+          : PageView(
+              controller: _pageController,
+              physics: const BouncingScrollPhysics(),
+              onPageChanged: (index) {
+                final page = _pageFromIndex(index);
+                setState(() => _currentPage = page);
+              },
+              children: [
+                _pages[MainPage.home]!,
+                _pages[MainPage.transactions]!,
+                _pages[MainPage.budget]!,
+                _pages[MainPage.account]!,
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
         backgroundColor: Colors.green,
+        onPressed: _openAddTransaction,
         child: const Icon(Icons.add, size: 32, color: Colors.white),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) => const AddTransactionPage(),
-          );
-        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _current_index > 4 ? 0 : _current_index, // ẩn index 5
+        currentIndex: _bottomNavIndex(),
         onTap: (index) {
           if (index == 2) {
-            return;
+            _openAddTransaction(); // nút giữa
           } else {
-            setState(() {
-              _current_index = index;
-            });
+            // BottomNav index → MainPage
+            final page = [MainPage.home, MainPage.transactions, MainPage.budget, MainPage.account]
+                [index > 2 ? index - 1 : index];
+            _goTo(page);
           }
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Tổng quan"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.wallet),
-            label: "Sổ giao dịch",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add, color: Colors.transparent),
-            label: "",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Sổ giao dịch"),
+          BottomNavigationBarItem(icon: Icon(Icons.add, color: Colors.transparent), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Ngân sách"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.manage_accounts),
-            label: "Tài khoản",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.manage_accounts), label: "Tài khoản"),
         ],
       ),
     );
