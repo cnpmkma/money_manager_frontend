@@ -1,13 +1,24 @@
-import 'dart:convert';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static String get baseUrl => dotenv.env['API_BASE_URL']!;
 
   /// Bật tắt mock data (true = dùng fake, false = gọi API thật)
-  static const bool useMock = true;
+  static const bool useMock = false;
 
+  static final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      headers: {"Content-Type": "application/json"}
+    )
+  );
+
+  // --------------------REGISTER------------------
   static Future<Map<String, dynamic>> register({
     required String username,
     required String email,
@@ -26,28 +37,33 @@ class AuthService {
     }
 
     // API thật
-    final url = Uri.parse("$baseUrl/register");
     try {
-      final Response response = await post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
+      final res = await _dio.post(
+        "/register",
+        data: {
           "username": username,
           "email": email,
-          "password": password,
-        }),
+          "password": password
+        }
       );
 
-      if (response.statusCode == 201) {
-        return {"success": true, "data": jsonDecode(response.body)};
+      if (res.statusCode == 201) {
+        return {
+          "success": res.data["success"],
+          "message": res.data["message"],
+          "user": res.data["user"]
+        };
       } else {
         return {
           "success": false,
-          "message": jsonDecode(response.body)['message'] ?? "Đăng ký thất bại"
+          "message": "Đăng ký thất bại"
         };
       }
-    } catch (e) {
-      return {"success": false, "message": e.toString()};
+    } on DioException catch(e) {
+      return {
+        "success": false,
+        "message": "Đăng ký thất bại"
+      };
     }
   }
 
@@ -78,40 +94,45 @@ class AuthService {
 
     // API thật
     try {
-      final response = await post(
-        Uri.parse("$baseUrl/login"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
+      final res = await _dio.post(
+        '/login',
+        data: {
           "username": username,
-          "password": password,
-        }),
+          "password": password
+        }
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return {
-          "success": true,
-          "access_token": data['access_token'],
-          "user": data['user'],
-          "message": "Đăng nhập thành công"
-        };
-      } else {
-        final data = jsonDecode(response.body);
+      final data = res.data;
+
+      return {
+        "success": data["success"],
+        "access_token": data["access_token"],
+        "user": data["user"],
+        "message": data["message"],
+      };
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
         return {
           "success": false,
           "access_token": null,
           "user": null,
-          "message": data['message'] ?? "Đăng nhập thất bại"
+          "message": data?["message"] ?? "Đăng nhập thất bại"
+        };
+      } else {
+        return {
+          "success": false,
+          "access_token": null,
+          "user": null,
+          "message": e.message ?? "Lỗi kết nối"
         };
       }
-    } catch (e) {
-      return {
-        "success": false,
-        "access_token": null,
-        "user": null,
-        "message": e.toString()
-      };
     }
+  }
+
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token');
   }
 
 }

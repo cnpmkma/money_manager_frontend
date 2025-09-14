@@ -31,17 +31,38 @@ class _LoginState extends State<Login> {
         password: _passwordController.text.trim()
       );
 
-      final token = result['access_token'];
+      if (result['success'] == true) {
+        // Lưu token
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', result['access_token']);
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
+        // Show snackbar success
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message']),
+          backgroundColor: Colors.green,
+        ),
+      );
 
-      print("Login thành công! Token: $token");
-
+      // Điều hướng sang Main
       Navigator.pushReplacementNamed(context, '/main');
+      } else {
+      // Show snackbar lỗi
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } catch (e) {
-      print(e.toString());
-    }
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Có lỗi xảy ra: ${e.toString()}"),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
   }
 
   @override

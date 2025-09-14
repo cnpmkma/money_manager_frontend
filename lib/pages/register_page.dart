@@ -35,7 +35,7 @@ class _RegisterState extends State<Register> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result['success'] ? "Đăng ký thành công!" : result['message']),
+        content: Text(result['message']),
         backgroundColor: result['success'] ? Colors.green : Colors.red,
       ),
     );

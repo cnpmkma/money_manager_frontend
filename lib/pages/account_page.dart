@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager_frontend/pages/login_page.dart';
+import 'package:money_manager_frontend/services/auth_service.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -78,8 +80,14 @@ class _AccountPageState extends State<AccountPage> {
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text("Đăng xuất",
                 style: TextStyle(color: Colors.red)),
-            onTap: () {
-              // TODO: xử lý logout
+            onTap: () async {
+              await AuthService.logout();
+
+              Navigator.pushAndRemoveUntil(
+                context, 
+                MaterialPageRoute(builder: (_) => const Login()), 
+                (route) => false
+              );
             },
           ),
         ],
