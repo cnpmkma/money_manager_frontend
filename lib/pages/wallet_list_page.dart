@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 import 'package:intl/intl.dart';
+import 'add_wallet_page.dart';
 
 class WalletListPage extends StatefulWidget {
   final VoidCallback onBack;
@@ -58,7 +59,15 @@ class _WalletListPageState extends State<WalletListPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: mở form thêm ví
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => AddWalletPage(
+                            onWalletAdded: () {
+                              _fetchWallets(); // reload danh sách ví
+                            },
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.add),
                       label: const Text("Thêm ví mới"),

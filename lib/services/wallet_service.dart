@@ -37,7 +37,7 @@ class WalletService {
     final res = await _dio.post(
       "/wallets",
       data: {
-        "walltet_name": name,
+        "wallet_name": name,
         "balance": balance,
       },
       options: Options(
