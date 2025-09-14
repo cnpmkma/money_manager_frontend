@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
+import 'package:money_manager_frontend/pages/wallet_list_page.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final VoidCallback? onViewAllWallets;
+  const Home({super.key, required this.onViewAllWallets});
 
   @override
   State<Home> createState() => _HomeState();
@@ -149,7 +151,9 @@ class _HomeState extends State<Home> {
                         const Text("Ví của tôi", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         TextButton(
                           onPressed: () {
-                            // todo mở các ví
+                            if (widget.onViewAllWallets != null) {
+                              widget.onViewAllWallets!(); // gọi callback
+                            }
                           },
                           child: const Text("Xem tất cả"),
                           style: TextButton.styleFrom(

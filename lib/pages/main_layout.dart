@@ -3,6 +3,7 @@ import 'package:money_manager_frontend/pages/account_page.dart';
 import 'package:money_manager_frontend/pages/add_transaction_page.dart';
 import 'package:money_manager_frontend/pages/budget_page.dart';
 import 'package:money_manager_frontend/pages/transaction_page.dart';
+import 'package:money_manager_frontend/pages/wallet_list_page.dart';
 import 'home_page.dart';
 
 
@@ -16,13 +17,31 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _current_index = 0;
 
-  final List<Widget> _pages = [
-    const Home(),
-    const TransactionPage(),
-    const Placeholder(),
-    const BudgetPage(),
-    const AccountPage()
-  ];
+  late final List<Widget> _pages;
+
+   @override
+  void initState() {
+    super.initState();
+
+    _pages = [
+      Home(onViewAllWallets: () {
+        setState(() {
+          _current_index = 5; // chuyển sang WalletListPage
+        });
+      }),
+      const TransactionPage(),
+      const Placeholder(),
+      const BudgetPage(),
+      const AccountPage(),
+      WalletListPage(
+        onBack: () {
+          setState(() {
+            _current_index = 0; // quay về Home
+          });
+        },
+      ), // index 5
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +61,7 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _current_index,
+        currentIndex: _current_index > 4 ? 0 : _current_index, // ẩn index 5
         onTap: (index) {
           if (index == 2) {
             return;
