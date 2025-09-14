@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[100],
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.pink,
+          selectedItemColor: Colors.green,
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
           showUnselectedLabels: true

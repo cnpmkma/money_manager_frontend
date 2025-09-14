@@ -29,8 +29,9 @@ class _MainLayoutState extends State<MainLayout> {
     return Scaffold(
       body: _pages[_current_index],
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.pink,
-        child: const Icon(Icons.add, size: 32),
+        shape: CircleBorder(),
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add, size: 32, color: Colors.white,),
         onPressed: () {
           showModalBottomSheet(
             context: context,

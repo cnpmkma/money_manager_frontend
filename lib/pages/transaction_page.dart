@@ -39,7 +39,120 @@ class _TransactionPageState extends State<TransactionPage> {
       "type": "income",
       "icon": Icons.sell,
     },
+    {
+      "title": "Xăng xe",
+      "amount": -80.0,
+      "date": DateTime(2025, 9, 7),
+      "type": "expense",
+      "icon": Icons.local_gas_station,
+    },
+    {
+      "title": "Cafe với bạn",
+      "amount": -50.0,
+      "date": DateTime(2025, 9, 7),
+      "type": "expense",
+      "icon": Icons.local_cafe,
+    },
+    {
+      "title": "Freelance project",
+      "amount": 1200.0,
+      "date": DateTime(2025, 9, 8),
+      "type": "income",
+      "icon": Icons.laptop_mac,
+    },
+    {
+      "title": "Điện thoại trả góp",
+      "amount": -500.0,
+      "date": DateTime(2025, 9, 9),
+      "type": "expense",
+      "icon": Icons.phone_iphone,
+    },
+    {
+      "title": "Điện nước",
+      "amount": -200.0,
+      "date": DateTime(2025, 9, 10),
+      "type": "expense",
+      "icon": Icons.lightbulb_outline,
+    },
+    {
+      "title": "Internet",
+      "amount": -150.0,
+      "date": DateTime(2025, 9, 10),
+      "type": "expense",
+      "icon": Icons.wifi,
+    },
+    {
+      "title": "Bán máy ảnh",
+      "amount": 800.0,
+      "date": DateTime(2025, 9, 11),
+      "type": "income",
+      "icon": Icons.camera_alt,
+    },
+    {
+      "title": "Ăn nhà hàng",
+      "amount": -400.0,
+      "date": DateTime(2025, 9, 12),
+      "type": "expense",
+      "icon": Icons.dining,
+    },
+    {
+      "title": "Mua sách",
+      "amount": -100.0,
+      "date": DateTime(2025, 9, 13),
+      "type": "expense",
+      "icon": Icons.book,
+    },
+    {
+      "title": "Khoản vay trả góp",
+      "amount": -600.0,
+      "date": DateTime(2025, 9, 14),
+      "type": "expense",
+      "icon": Icons.account_balance,
+    },
+    {
+      "title": "Bán laptop cũ",
+      "amount": 1000.0,
+      "date": DateTime(2025, 9, 15),
+      "type": "income",
+      "icon": Icons.computer,
+    },
+    {
+      "title": "Xem phim CGV",
+      "amount": -120.0,
+      "date": DateTime(2025, 9, 16),
+      "type": "expense",
+      "icon": Icons.movie,
+    },
+    {
+      "title": "Đi du lịch",
+      "amount": -2000.0,
+      "date": DateTime(2025, 9, 17),
+      "type": "expense",
+      "icon": Icons.flight,
+    },
+    {
+      "title": "Tiền thưởng công ty",
+      "amount": 1500.0,
+      "date": DateTime(2025, 9, 18),
+      "type": "income",
+      "icon": Icons.card_giftcard,
+    },
+    {
+      "title": "Khám sức khỏe",
+      "amount": -300.0,
+      "date": DateTime(2025, 9, 19),
+      "type": "expense",
+      "icon": Icons.local_hospital,
+    },
+    {
+      "title": "Mua quần áo",
+      "amount": -450.0,
+      "date": DateTime(2025, 9, 20),
+      "type": "expense",
+      "icon": Icons.checkroom,
+    },
   ];
+
 
   String _filter = "all"; // all, income, expense
 
@@ -68,7 +181,9 @@ class _TransactionPageState extends State<TransactionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sổ giao dịch"),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.green,
+        title: const Text("Sổ giao dịch",),
         centerTitle: true,
         actions: [
           PopupMenuButton<String>(
