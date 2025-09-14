@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'package:money_manager_frontend/services/wallet_service.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -10,6 +12,40 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool _showBalance = true;
+  double totalBalance = 0;
+  List<dynamic> _wallets = [];
+  List<dynamic> _transactions = [];
+
+  final currencyFormatter = NumberFormat.currency(
+    locale: 'vi_VN',
+    symbol: '₫',
+    decimalDigits: 0,
+  );
+
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWallet();
+  }
+
+
+  Future<void> _fetchWallet() async {
+    try {
+      final wallets = await WalletService.getWallets();
+
+      setState(() {
+        _wallets = wallets;
+
+        totalBalance = _wallets.fold(0, (sum, w) => sum + (double.tryParse(w['balance'].toString()) ?? 0)
+        );
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+    
+    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +92,7 @@ class _HomeState extends State<Home> {
                 child: Row(
                   children: [
                     Text(
-                      _showBalance ? "\$12,340.50" : "********",
+                      _showBalance ? currencyFormatter.format(totalBalance) : "********",
                       style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
@@ -124,39 +160,28 @@ class _HomeState extends State<Home> {
                     ),
                     Divider(height: 1,),
                     Column(
-                      children: [
-                        ListTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                shape: BoxShape.circle
-                            ),
-                            child: const Icon(Icons.account_balance_wallet, color: Colors.blue)
-                          ),
-                          title: const Text("Ví tiền mặt"),
-                          trailing: const Text(
-                            "\$1,200.00",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              shape: BoxShape.circle
-                            ),
-                            child: const Icon(Icons.credit_card, color: Colors.green)
-                          ),
-                          title: const Text("Thẻ ngân hàng"),
-                          trailing: const Text(
-                            "\$3,500.00",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ]
+                      children: _wallets.map((wallet) {
+                          return   Column(
+                            children: [
+                              ListTile(
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.account_balance_wallet, color: Colors.brown),
+                                ),
+                                title: Text(wallet['wallet_name']),
+                                trailing: Text(
+                                currencyFormatter.format(double.tryParse(wallet['balance'].toString()) ?? 0),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              ),
+                              const Divider(height: 1),
+                            ],
+                          );
+                        }).toList(),                  
                     )
                   ],
                 ),
