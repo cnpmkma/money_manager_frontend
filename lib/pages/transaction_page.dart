@@ -153,7 +153,6 @@ class _TransactionPageState extends State<TransactionPage> {
     },
   ];
 
-
   String _filter = "all"; // all, income, expense
 
   @override
@@ -183,7 +182,7 @@ class _TransactionPageState extends State<TransactionPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Colors.green,
-        title: const Text("Sổ giao dịch",),
+        title: const Text("Sổ giao dịch"),
         centerTitle: true,
         actions: [
           PopupMenuButton<String>(
@@ -206,41 +205,57 @@ class _TransactionPageState extends State<TransactionPage> {
         children: [
           // Card tổng kết
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             elevation: 4,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Tổng kết tháng 9",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text(
+                    "Tổng kết tháng 9",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Column(
                         children: [
-                          const Text("Thu nhập", style: TextStyle(color: Colors.green)),
-                          Text("+\$${totalIncome.toStringAsFixed(2)}",
-                              style: const TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16)),
+                          const Text(
+                            "Thu nhập",
+                            style: TextStyle(color: Colors.green),
+                          ),
+                          Text(
+                            "+\$${totalIncome.toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ],
                       ),
                       Column(
                         children: [
-                          const Text("Chi tiêu", style: TextStyle(color: Colors.red)),
-                          Text("-\$${totalExpense.toStringAsFixed(2)}",
-                              style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16)),
+                          const Text(
+                            "Chi tiêu",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          Text(
+                            "-\$${totalExpense.toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ],
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -252,25 +267,39 @@ class _TransactionPageState extends State<TransactionPage> {
           for (var entry in grouped.entries) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(entry.key,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+              child: Text(
+                entry.key,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+              ),
             ),
             ...entry.value.map((tx) {
               final isIncome = tx["amount"] > 0;
               return Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 elevation: 2,
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor:
-                    isIncome ? Colors.green[100] : Colors.red[100],
-                    child: Icon(tx["icon"], color: isIncome ? Colors.green : Colors.red),
+                    backgroundColor: isIncome
+                        ? Colors.green[100]
+                        : Colors.red[100],
+                    child: Icon(
+                      tx["icon"],
+                      color: isIncome ? Colors.green : Colors.red,
+                    ),
                   ),
-                  title: Text(tx["title"],
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  title: Text(
+                    tx["title"],
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   trailing: Text(
-                    (isIncome ? "+ " : "- ") + tx["amount"].abs().toStringAsFixed(2),
+                    (isIncome ? "+ " : "- ") +
+                        tx["amount"].abs().toStringAsFixed(2),
                     style: TextStyle(
                       color: isIncome ? Colors.green : Colors.red,
                       fontWeight: FontWeight.bold,

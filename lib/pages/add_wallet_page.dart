@@ -31,9 +31,9 @@ class _AddWalletPageState extends State<AddWalletPage> {
       Navigator.pop(context);
     } catch (e) {
       print("Error adding wallet: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Thêm ví thất bại")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Thêm ví thất bại")));
     } finally {
       setState(() => _loading = false);
     }
@@ -51,7 +51,10 @@ class _AddWalletPageState extends State<AddWalletPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("Thêm ví mới", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            "Thêm ví mới",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           Form(
             key: _formKey,
@@ -60,19 +63,23 @@ class _AddWalletPageState extends State<AddWalletPage> {
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(labelText: "Tên ví"),
-                  validator: (v) => v == null || v.isEmpty ? "Nhập tên ví" : null,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Nhập tên ví" : null,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _balanceController,
                   decoration: InputDecoration(labelText: "Số dư ban đầu"),
                   keyboardType: TextInputType.number,
-                  validator: (v) => v == null || v.isEmpty ? "Nhập số dư" : null,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Nhập số dư" : null,
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _loading ? null : _submit,
-                  child: _loading ? CircularProgressIndicator(color: Colors.white) : Text("Thêm"),
+                  child: _loading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text("Thêm"),
                 ),
               ],
             ),

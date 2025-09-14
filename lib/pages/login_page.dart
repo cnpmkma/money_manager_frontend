@@ -28,26 +28,22 @@ class _LoginState extends State<Login> {
     try {
       final result = await AuthService.login(
         username: _usernameController.text.trim(),
-        password: _passwordController.text.trim()
+        password: _passwordController.text.trim(),
       );
 
       if (result['success'] == true) {
-        // Lưu token
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', result['access_token']);
-
         // Show snackbar success
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message']),
-          backgroundColor: Colors.green,
-        ),
-      );
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      // Điều hướng sang Main
-      Navigator.pushReplacementNamed(context, '/main');
+        // Điều hướng sang Main
+        Navigator.pushReplacementNamed(context, '/main');
       } else {
-      // Show snackbar lỗi
+        // Show snackbar lỗi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message']),
@@ -57,12 +53,12 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Có lỗi xảy ra: ${e.toString()}"),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
+        SnackBar(
+          content: Text("Có lỗi xảy ra: ${e.toString()}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -105,7 +101,10 @@ class _LoginState extends State<Login> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           hintText: "Tên đăng nhập",
-                          hintStyle: TextStyle(color: Colors.white, fontSize: 16),
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                           filled: true,
                           fillColor: Color(0xFFFF93CC),
                           border: OutlineInputBorder(
@@ -132,7 +131,10 @@ class _LoginState extends State<Login> {
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: "Mật khẩu",
-                          hintStyle: TextStyle(color: Colors.white, fontSize: 16),
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                           filled: true,
                           fillColor: Color(0xFFFF93CC),
                           border: OutlineInputBorder(
@@ -177,10 +179,7 @@ class _LoginState extends State<Login> {
                   Text("Bạn chưa có tài khoản?"),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(
-                          context,
-                          "/register"
-                      );
+                      Navigator.pushNamed(context, "/register");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFF03F9C),

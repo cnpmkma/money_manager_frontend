@@ -6,7 +6,6 @@ import 'package:money_manager_frontend/pages/transaction_page.dart';
 import 'package:money_manager_frontend/pages/wallet_list_page.dart';
 import 'home_page.dart';
 
-
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
@@ -19,16 +18,18 @@ class _MainLayoutState extends State<MainLayout> {
 
   late final List<Widget> _pages;
 
-   @override
+  @override
   void initState() {
     super.initState();
 
     _pages = [
-      Home(onViewAllWallets: () {
-        setState(() {
-          _current_index = 5; // chuyển sang WalletListPage
-        });
-      }),
+      Home(
+        onViewAllWallets: () {
+          setState(() {
+            _current_index = 5; // chuyển sang WalletListPage
+          });
+        },
+      ),
       const TransactionPage(),
       const Placeholder(),
       const BudgetPage(),
@@ -50,12 +51,12 @@ class _MainLayoutState extends State<MainLayout> {
       floatingActionButton: FloatingActionButton(
         shape: CircleBorder(),
         backgroundColor: Colors.green,
-        child: const Icon(Icons.add, size: 32, color: Colors.white,),
+        child: const Icon(Icons.add, size: 32, color: Colors.white),
         onPressed: () {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
-            builder: (context) => const AddTransactionPage()
+            builder: (context) => const AddTransactionPage(),
           );
         },
       ),
@@ -73,10 +74,19 @@ class _MainLayoutState extends State<MainLayout> {
         },
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Tổng quan"),
-          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Sổ giao dịch"),
-          BottomNavigationBarItem(icon: Icon(Icons.add, color: Colors.transparent,), label: ""),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wallet),
+            label: "Sổ giao dịch",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add, color: Colors.transparent),
+            label: "",
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Ngân sách"),
-          BottomNavigationBarItem(icon: Icon(Icons.manage_accounts), label: "Tài khoản"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.manage_accounts),
+            label: "Tài khoản",
+          ),
         ],
       ),
     );

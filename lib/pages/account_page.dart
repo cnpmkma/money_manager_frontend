@@ -13,10 +13,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Tài khoản"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Tài khoản"), centerTitle: true),
       body: ListView(
         children: [
           const SizedBox(height: 20),
@@ -27,13 +24,19 @@ class _AccountPageState extends State<AccountPage> {
               children: const [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage("assets/avatar.png"), // TODO: đổi sang avatar user
+                  backgroundImage: AssetImage(
+                    "assets/avatar.png",
+                  ), // TODO: đổi sang avatar user
                 ),
                 SizedBox(height: 10),
-                Text("Nguyễn Văn A",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text("nguyenvana@example.com",
-                    style: TextStyle(color: Colors.grey)),
+                Text(
+                  "Nguyễn Văn A",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "nguyenvana@example.com",
+                  style: TextStyle(color: Colors.grey),
+                ),
               ],
             ),
           ),
@@ -78,15 +81,14 @@ class _AccountPageState extends State<AccountPage> {
 
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text("Đăng xuất",
-                style: TextStyle(color: Colors.red)),
+            title: const Text("Đăng xuất", style: TextStyle(color: Colors.red)),
             onTap: () async {
               await AuthService.logout();
 
               Navigator.pushAndRemoveUntil(
-                context, 
-                MaterialPageRoute(builder: (_) => const Login()), 
-                (route) => false
+                context,
+                MaterialPageRoute(builder: (_) => const Login()),
+                (route) => false,
               );
             },
           ),

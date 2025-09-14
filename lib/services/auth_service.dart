@@ -8,13 +8,25 @@ class AuthService {
   /// Bật tắt mock data (true = dùng fake, false = gọi API thật)
   static const bool useMock = false;
 
+  static const _keyLoggedIn = 'isLoggedIn';
+
+  static Future<void> saveLoginStatus(bool status) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyLoggedIn, status);
+  }
+
+  static Future<bool> getLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyLoggedIn) ?? false;
+  }
+
   static final Dio _dio = Dio(
     BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-      headers: {"Content-Type": "application/json"}
-    )
+      headers: {"Content-Type": "application/json"},
+    ),
   );
 
   // --------------------REGISTER------------------
@@ -31,7 +43,7 @@ class AuthService {
       }
       return {
         "success": true,
-        "data": {"id": 1, "username": username, "email": email}
+        "data": {"id": 1, "username": username, "email": email},
       };
     }
 
@@ -39,30 +51,20 @@ class AuthService {
     try {
       final res = await _dio.post(
         "/register",
-        data: {
-          "username": username,
-          "email": email,
-          "password": password
-        }
+        data: {"username": username, "email": email, "password": password},
       );
 
       if (res.statusCode == 201) {
         return {
           "success": res.data["success"],
           "message": res.data["message"],
-          "user": res.data["user"]
+          "user": res.data["user"],
         };
       } else {
-        return {
-          "success": false,
-          "message": "Đăng ký thất bại"
-        };
+        return {"success": false, "message": "Đăng ký thất bại"};
       }
-    } on DioException catch(e) {
-      return {
-        "success": false,
-        "message": "Đăng ký thất bại"
-      };
+    } on DioException {
+      return {"success": false, "message": "Đăng ký thất bại"};
     }
   }
 
@@ -79,7 +81,7 @@ class AuthService {
           "success": true,
           "access_token": "mock_access_token_123",
           "user": {"id": 1, "username": username},
-          "message": "Đăng nhập thành công (mock)"
+          "message": "Đăng nhập thành công (mock)",
         };
       }
 
@@ -87,7 +89,7 @@ class AuthService {
         "success": false,
         "access_token": null,
         "user": null,
-        "message": "Sai tài khoản hoặc mật khẩu (mock)"
+        "message": "Sai tài khoản hoặc mật khẩu (mock)",
       };
     }
 
@@ -95,14 +97,16 @@ class AuthService {
     try {
       final res = await _dio.post(
         '/login',
-        data: {
-          "username": username,
-          "password": password
-        }
+        data: {"username": username, "password": password},
       );
 
       final data = res.data;
 
+      if (data['success'] == true) {
+        await saveLoginStatus(true);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', data["access_token"]);
+      }
       return {
         "success": data["success"],
         "access_token": data["access_token"],
@@ -116,14 +120,14 @@ class AuthService {
           "success": false,
           "access_token": null,
           "user": null,
-          "message": data?["message"] ?? "Đăng nhập thất bại"
+          "message": data?["message"] ?? "Đăng nhập thất bại",
         };
       } else {
         return {
           "success": false,
           "access_token": null,
           "user": null,
-          "message": e.message ?? "Lỗi kết nối"
+          "message": e.message ?? "Lỗi kết nối",
         };
       }
     }
@@ -131,6 +135,7 @@ class AuthService {
 
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
+    await saveLoginStatus(false);
     await prefs.remove('access_token');
   }
 
@@ -138,5 +143,4 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('access_token');
   }
-
 }

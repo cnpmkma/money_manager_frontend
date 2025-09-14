@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
-import 'package:money_manager_frontend/pages/wallet_list_page.dart';
 
 class Home extends StatefulWidget {
   final VoidCallback? onViewAllWallets;
@@ -24,13 +23,11 @@ class _HomeState extends State<Home> {
     decimalDigits: 0,
   );
 
-
   @override
   void initState() {
     super.initState();
     _fetchWallet();
   }
-
 
   Future<void> _fetchWallet() async {
     try {
@@ -39,14 +36,14 @@ class _HomeState extends State<Home> {
       setState(() {
         _wallets = wallets;
 
-        totalBalance = _wallets.fold(0, (sum, w) => sum + (double.tryParse(w['balance'].toString()) ?? 0)
+        totalBalance = _wallets.fold(
+          0,
+          (sum, w) => sum + (double.tryParse(w['balance'].toString()) ?? 0),
         );
       });
     } catch (e) {
       print("Error: $e");
     }
-    
-    
   }
 
   @override
@@ -64,16 +61,31 @@ class _HomeState extends State<Home> {
                 offset: Offset(0, 8),
                 child: Row(
                   children: [
-                    const Text("Tổng số dư", style: TextStyle(fontSize: 14, height: 0, color: Colors.white)),
+                    const Text(
+                      "Tổng số dư",
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 0,
+                        color: Colors.white,
+                      ),
+                    ),
                     IconButton(
                       onPressed: () {
-                        showDialog(context: context, builder: (ctx) => AlertDialog(
-                          title: const Text("Thông tin số dư"),
-                          content: const Text("Được tính dựa trên tổng số dư của các ví"),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Đóng"))
-                          ],
-                        ));
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("Thông tin số dư"),
+                            content: const Text(
+                              "Được tính dựa trên tổng số dư của các ví",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text("Đóng"),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                       icon: Transform.translate(
                         offset: Offset(-10, 0),
@@ -85,7 +97,7 @@ class _HomeState extends State<Home> {
                       ),
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -94,11 +106,13 @@ class _HomeState extends State<Home> {
                 child: Row(
                   children: [
                     Text(
-                      _showBalance ? currencyFormatter.format(totalBalance) : "********",
+                      _showBalance
+                          ? currencyFormatter.format(totalBalance)
+                          : "********",
                       style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white
+                        color: Colors.white,
                       ),
                     ),
                     IconButton(
@@ -108,23 +122,27 @@ class _HomeState extends State<Home> {
                         });
                       },
                       icon: Icon(
-                        _showBalance
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        _showBalance ? Icons.visibility : Icons.visibility_off,
                         size: 22,
                         color: Colors.white,
                       ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                    )
+                    ),
                   ],
                 ),
               ),
             ],
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search, color: Colors.white,)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none, color: Colors.white,)),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.search, color: Colors.white),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
+            ),
           ],
         ),
       ),
@@ -141,14 +159,23 @@ class _HomeState extends State<Home> {
               elevation: 4,
               color: Colors.white,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("Ví của tôi", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        const Text(
+                          "Ví của tôi",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         TextButton(
                           onPressed: () {
                             if (widget.onViewAllWallets != null) {
@@ -157,36 +184,46 @@ class _HomeState extends State<Home> {
                           },
                           child: const Text("Xem tất cả"),
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.green
+                            foregroundColor: Colors.green,
                           ),
-                        )
+                        ),
                       ],
                     ),
-                    Divider(height: 1,),
+                    Divider(height: 1),
                     Column(
                       children: _wallets.map((wallet) {
-                          return   Column(
-                            children: [
-                              ListTile(
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.account_balance_wallet, color: Colors.brown),
+                        return Column(
+                          children: [
+                            ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  shape: BoxShape.circle,
                                 ),
-                                title: Text(wallet['wallet_name']),
-                                trailing: Text(
-                                currencyFormatter.format(double.tryParse(wallet['balance'].toString()) ?? 0),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                child: const Icon(
+                                  Icons.account_balance_wallet,
+                                  color: Colors.brown,
+                                ),
                               ),
+                              title: Text(wallet['wallet_name']),
+                              trailing: Text(
+                                currencyFormatter.format(
+                                  double.tryParse(
+                                        wallet['balance'].toString(),
+                                      ) ??
+                                      0,
+                                ),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              const Divider(height: 1),
-                            ],
-                          );
-                        }).toList(),                  
-                    )
+                            ),
+                            const Divider(height: 1),
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   ],
                 ),
               ),
@@ -199,14 +236,15 @@ class _HomeState extends State<Home> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Báo cáo tháng này", style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)),
+                  Text(
+                    "Báo cáo tháng này",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   TextButton(
-                      onPressed: () {},
-                      child: Text("Xem báo cáo"),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.green
-                      ),
-                  )
+                    onPressed: () {},
+                    child: Text("Xem báo cáo"),
+                    style: TextButton.styleFrom(foregroundColor: Colors.green),
+                  ),
                 ],
               ),
             ),
@@ -247,14 +285,15 @@ class _HomeState extends State<Home> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Giao dịch gần đây", style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)),
+                  Text(
+                    "Giao dịch gần đây",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   TextButton(
                     onPressed: () {},
                     child: Text("Xem tất cả"),
-                    style: TextButton.styleFrom(
-                        foregroundColor: Colors.green
-                    ),
-                  )
+                    style: TextButton.styleFrom(foregroundColor: Colors.green),
+                  ),
                 ],
               ),
             ),
@@ -340,10 +379,12 @@ class SpendingLineChart extends StatelessWidget {
                     },
                   ),
                 ),
-                rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
               borderData: FlBorderData(
                 show: true,
@@ -443,7 +484,7 @@ class Indicator extends StatelessWidget {
         Text(
           text,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        )
+        ),
       ],
     );
   }
@@ -480,7 +521,8 @@ class PieChart2State extends State<PieChartSample2> {
                           return;
                         }
                         touchedIndex = pieTouchResponse
-                            .touchedSection!.touchedSectionIndex;
+                            .touchedSection!
+                            .touchedSectionIndex;
                       });
                     },
                   ),
@@ -498,17 +540,9 @@ class PieChart2State extends State<PieChartSample2> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Indicator(
-                color: Colors.green,
-                text: 'Thu nhập',
-                isSquare: true,
-              ),
+              Indicator(color: Colors.green, text: 'Thu nhập', isSquare: true),
               SizedBox(height: 8),
-              Indicator(
-                color: Colors.red,
-                text: 'Chi tiêu',
-                isSquare: true,
-              ),
+              Indicator(color: Colors.red, text: 'Chi tiêu', isSquare: true),
             ],
           ),
           const SizedBox(width: 16),
@@ -553,4 +587,3 @@ class PieChart2State extends State<PieChartSample2> {
     ];
   }
 }
-

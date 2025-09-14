@@ -90,8 +90,9 @@ class _RegisterState extends State<Register> {
                     _buildTextField(
                       label: "Tên đăng nhập",
                       controller: _usernameController,
-                      validator: (value) =>
-                      value == null || value.isEmpty ? "Tên đăng nhập không được để trống." : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? "Tên đăng nhập không được để trống."
+                          : null,
                     ),
                     SizedBox(height: 16),
                     // Email
@@ -100,9 +101,13 @@ class _RegisterState extends State<Register> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Email không được để trống.";
-                        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                        if (!emailRegex.hasMatch(value)) return "Email không hợp lệ.";
+                        if (value == null || value.isEmpty)
+                          return "Email không được để trống.";
+                        final emailRegex = RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        );
+                        if (!emailRegex.hasMatch(value))
+                          return "Email không hợp lệ.";
                         return null;
                       },
                     ),
@@ -113,8 +118,10 @@ class _RegisterState extends State<Register> {
                       obscureText: true,
                       controller: _passwordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Mật khẩu không được để trống.";
-                        if (value.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự.";
+                        if (value == null || value.isEmpty)
+                          return "Mật khẩu không được để trống.";
+                        if (value.length < 6)
+                          return "Mật khẩu phải có ít nhất 6 ký tự.";
                         return null;
                       },
                     ),
@@ -125,8 +132,10 @@ class _RegisterState extends State<Register> {
                       obscureText: true,
                       controller: _confirmPasswordController,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Vui lòng nhập lại mật khẩu.";
-                        if (value != _passwordController.text) return "Mật khẩu không khớp.";
+                        if (value == null || value.isEmpty)
+                          return "Vui lòng nhập lại mật khẩu.";
+                        if (value != _passwordController.text)
+                          return "Mật khẩu không khớp.";
                         return null;
                       },
                     ),
@@ -134,23 +143,26 @@ class _RegisterState extends State<Register> {
                     _isLoading
                         ? CircularProgressIndicator()
                         : FilledButton(
-                      onPressed: _register,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Color(0xFFF03F9C),
-                        foregroundColor: Colors.white,
-                        textStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      child: Text("Đăng ký"),
-                    ),
+                            onPressed: _register,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Color(0xFFF03F9C),
+                              foregroundColor: Colors.white,
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            child: Text("Đăng ký"),
+                          ),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFF03F9C),
                         foregroundColor: Colors.white,
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -181,7 +193,10 @@ class _RegisterState extends State<Register> {
         obscureText: obscureText,
         keyboardType: keyboardType,
         decoration: InputDecoration(
-          label: Text(label, style: TextStyle(color: Colors.white, fontSize: 16)),
+          label: Text(
+            label,
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
           filled: true,
           fillColor: Color(0xFFFF93CC),
           border: OutlineInputBorder(

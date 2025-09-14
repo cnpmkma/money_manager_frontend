@@ -35,7 +35,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           ),
           Text(
             'Thêm giao dịch',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Form(
@@ -49,7 +51,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) =>
-                  value == null || value.isEmpty ? "Nhập tên" : null,
+                      value == null || value.isEmpty ? "Nhập tên" : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -60,7 +62,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) =>
-                  value == null || value.isEmpty ? "Nhập số tiền" : null,
+                      value == null || value.isEmpty ? "Nhập số tiền" : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(

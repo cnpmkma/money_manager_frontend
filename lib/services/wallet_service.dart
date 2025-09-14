@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'auth_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
 class WalletService {
   static String get baseUrl => dotenv.env['API_BASE_URL']!;
 
@@ -11,10 +10,8 @@ class WalletService {
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-      headers: {
-        "Accept": "application/json"
-      }
-    )
+      headers: {"Accept": "application/json"},
+    ),
   );
 
   // Lấy danh sách ví
@@ -23,26 +20,22 @@ class WalletService {
 
     final res = await _dio.get(
       "/wallets",
-      options: Options(
-        headers: {"Authorization": "Bearer $token"}
-      )
+      options: Options(headers: {"Authorization": "Bearer $token"}),
     );
 
     return res.data as List<dynamic>;
   }
 
-  static Future<Map<String, dynamic>> createWallet(String name, double balance) async {
+  static Future<Map<String, dynamic>> createWallet(
+    String name,
+    double balance,
+  ) async {
     final token = await AuthService.getToken();
-    
+
     final res = await _dio.post(
       "/wallets",
-      data: {
-        "wallet_name": name,
-        "balance": balance,
-      },
-      options: Options(
-        headers: {"Authorization": "Bearer $token"}
-      )
+      data: {"wallet_name": name, "balance": balance},
+      options: Options(headers: {"Authorization": "Bearer $token"}),
     );
 
     return res.data as Map<String, dynamic>;

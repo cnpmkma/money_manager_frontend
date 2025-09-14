@@ -76,7 +76,8 @@ class _WalletListPageState extends State<WalletListPage> {
                 }
 
                 final wallet = _wallets[index];
-                final balance = double.tryParse(wallet['balance'].toString()) ?? 0;
+                final balance =
+                    double.tryParse(wallet['balance'].toString()) ?? 0;
 
                 return Column(
                   children: [
@@ -87,7 +88,10 @@ class _WalletListPageState extends State<WalletListPage> {
                           color: Colors.grey[100],
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.account_balance_wallet, color: Colors.brown),
+                        child: const Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.brown,
+                        ),
                       ),
                       title: Text(wallet['wallet_name']),
                       trailing: Text(
