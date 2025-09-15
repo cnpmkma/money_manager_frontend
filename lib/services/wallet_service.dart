@@ -40,4 +40,32 @@ class WalletService {
 
     return res.data as Map<String, dynamic>;
   }
+
+    // Cập nhật ví
+  static Future<Map<String, dynamic>> updateWallet(
+    int id,
+    String name,
+    double balance,
+  ) async {
+    final token = await AuthService.getToken();
+
+    final res = await _dio.patch(
+      "/wallets/$id",
+      data: {"wallet_name": name, "balance": balance},
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
+
+    return res.data as Map<String, dynamic>;
+  }
+
+  // Xóa ví
+  static Future<void> deleteWallet(int id) async {
+    final token = await AuthService.getToken();
+
+    await _dio.delete(
+      "/wallets/$id",
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
+  }
+
 }

@@ -180,8 +180,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.green,
         title: const Text("Sổ giao dịch"),
         centerTitle: true,
         actions: [

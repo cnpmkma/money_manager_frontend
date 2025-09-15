@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 import 'package:intl/intl.dart';
 import 'add_wallet_page.dart';
+import 'edit_wallet_page.dart';
 
 class WalletListPage extends StatefulWidget {
   final VoidCallback onBack;
@@ -94,9 +95,69 @@ class _WalletListPageState extends State<WalletListPage> {
                         ),
                       ),
                       title: Text(wallet['wallet_name']),
-                      trailing: Text(
-                        "${_formatter.format(balance)}₫",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "${_formatter.format(balance)}₫",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == "edit") {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) => EditWalletPage(
+                                    walletId: wallet['id'],
+                                    initialName: wallet['wallet_name'],
+                                    initialBalance: double.tryParse(wallet['balance'].toString()) ?? 0,
+                                    onWalletUpdated: _fetchWallets, // reload lại danh sách
+                                  ),
+                                );
+                              } else if (value =="delete") {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text("Xóa ví"),
+                                      content: Text("Bạn có chắc chắn muốn xóa ví '${wallet['wallet_name']}' không?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text("Hủy"),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                          onPressed: () async {
+                                            try {
+                                              await WalletService.deleteWallet(wallet['id']);
+                                              Navigator.pop(context); // đóng dialog
+                                              _fetchWallets(); // refresh list
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text("Xóa ví thành công")),
+                                              );
+                                            } catch (e) {
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Lỗi khi xóa ví: $e")),
+                                              );
+                                            }
+                                          },
+                                          child: const Text("Xóa"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(value: 'edit', child: Text('Sửa')),
+                              const PopupMenuItem(value: 'delete', child: Text('Xóa')),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                     const Divider(height: 1),

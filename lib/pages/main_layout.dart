@@ -118,7 +118,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Color(0xFFF81879),
         onPressed: _openAddTransaction,
         child: const Icon(Icons.add, size: 32, color: Colors.white),
       ),
@@ -137,7 +137,7 @@ class _MainLayoutState extends State<MainLayout> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Tổng quan"),
-          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Sổ giao dịch"),
+          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Giao dịch"),
           BottomNavigationBarItem(icon: Icon(Icons.add, color: Colors.transparent), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Ngân sách"),
           BottomNavigationBarItem(icon: Icon(Icons.manage_accounts), label: "Tài khoản"),

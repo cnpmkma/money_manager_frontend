@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
+import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 
 class Home extends StatefulWidget {
   final VoidCallback? onViewAllWallets;
-  const Home({super.key, required this.onViewAllWallets});
+  const Home({super.key, this.onViewAllWallets});
 
   @override
   State<Home> createState() => _HomeState();
@@ -15,7 +16,6 @@ class _HomeState extends State<Home> {
   bool _showBalance = true;
   double totalBalance = 0;
   List<dynamic> _wallets = [];
-  List<dynamic> _transactions = [];
 
   final currencyFormatter = NumberFormat.currency(
     locale: 'vi_VN',
@@ -26,306 +26,154 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _fetchWallet();
+    _fetchWallets();
   }
 
-  Future<void> _fetchWallet() async {
+  Future<void> _fetchWallets() async {
     try {
       final wallets = await WalletService.getWallets();
-
       setState(() {
         _wallets = wallets;
-
         totalBalance = _wallets.fold(
           0,
           (sum, w) => sum + (double.tryParse(w['balance'].toString()) ?? 0),
         );
       });
     } catch (e) {
-      print("Error: $e");
+      debugPrint("Error fetching wallets: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: AppBar(
-          backgroundColor: Colors.green,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Transform.translate(
-                offset: Offset(0, 8),
-                child: Row(
-                  children: [
-                    const Text(
-                      "Tổng số dư",
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 0,
-                        color: Colors.white,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text("Thông tin số dư"),
-                            content: const Text(
-                              "Được tính dựa trên tổng số dư của các ví",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text("Đóng"),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      icon: Transform.translate(
-                        offset: Offset(-10, 0),
-                        child: const Icon(
-                          Icons.help_outline,
-                          size: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-              Transform.translate(
-                offset: Offset(0, -8),
-                child: Row(
-                  children: [
-                    Text(
-                      _showBalance
-                          ? currencyFormatter.format(totalBalance)
-                          : "********",
-                      style: const TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _showBalance = !_showBalance;
-                        });
-                      },
-                      icon: Icon(
-                        _showBalance ? Icons.visibility : Icons.visibility_off,
-                        size: 22,
-                        color: Colors.white,
-                      ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.search, color: Colors.white),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.notifications_none, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
+    return GradientScaffold(
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Card ví
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            color: Color(0xFFF6F5F2),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 4,
+            child: ListTile(
+              title: Text(
+                _showBalance
+                    ? currencyFormatter.format(totalBalance)
+                    : "********",
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
-              elevation: 4,
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 0,
+              trailing: IconButton(
+                icon: Icon(
+                    _showBalance ? Icons.visibility : Icons.visibility_off,  
+                  ),
+                onPressed: () => setState(() => _showBalance = !_showBalance),
+              ),
+              subtitle: const Text("Tổng số dư"),
+            ),
+          ),
+          const SizedBox(height: 16),
+            WalletCard(
+              wallets: _wallets,
+              totalBalance: totalBalance,
+              showBalance: _showBalance,
+              toggleBalance: () => setState(() => _showBalance = !_showBalance),
+              onViewAll: widget.onViewAllWallets,
+            ),
+            const SizedBox(height: 20),
+            const TextSection(title: "Báo cáo tháng này", actionText: "Xem báo cáo"),
+            const SizedBox(height: 8),
+            const ChartCard(child: PieChartSample2()),
+            const SizedBox(height: 16),
+            const ChartCard(child: SpendingLineChart()),
+            const SizedBox(height: 20),
+            const TextSection(title: "Giao dịch gần đây", actionText: "Xem tất cả"),
+            const SizedBox(height: 8),
+            const TransactionCard(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      actions: const [
+        Icon(Icons.search, color: Colors.white),
+        SizedBox(width: 16),
+        Icon(Icons.notifications_none, color: Colors.white),
+        SizedBox(width: 16),
+      ],
+    );
+  }
+}
+
+class WalletCard extends StatelessWidget {
+  final List<dynamic> wallets;
+  final double totalBalance;
+  final bool showBalance;
+  final VoidCallback? toggleBalance;
+  final VoidCallback? onViewAll;
+
+  const WalletCard({
+    super.key,
+    required this.wallets,
+    required this.totalBalance,
+    required this.showBalance,
+    this.toggleBalance,
+    this.onViewAll,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      color: Color(0xFFF6F5F2),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Ví của tôi", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                TextButton(
+                  onPressed: onViewAll,
+                  style: TextButton.styleFrom(foregroundColor: Colors.deepPurple),
+                  child: const Text("Xem tất cả"),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ],
+            ),
+            const Divider(height: 1),
+            Column(
+              children: wallets.take(3).map((wallet) {
+                return Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Ví của tôi",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF7F55B1),
+                          shape: BoxShape.circle,
                         ),
-                        TextButton(
-                          onPressed: () {
-                            if (widget.onViewAllWallets != null) {
-                              widget.onViewAllWallets!(); // gọi callback
-                            }
-                          },
-                          child: const Text("Xem tất cả"),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.green,
-                          ),
-                        ),
-                      ],
+                        child: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                      ),
+                      title: Text(wallet['wallet_name']),
+                      trailing: Text(
+                        currencyFormatter.format(double.tryParse(wallet['balance'].toString()) ?? 0),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    Divider(height: 1),
-                    Column(
-                      children: _wallets.map((wallet) {
-                        return Column(
-                          children: [
-                            ListTile(
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.account_balance_wallet,
-                                  color: Colors.brown,
-                                ),
-                              ),
-                              title: Text(wallet['wallet_name']),
-                              trailing: Text(
-                                currencyFormatter.format(
-                                  double.tryParse(
-                                        wallet['balance'].toString(),
-                                      ) ??
-                                      0,
-                                ),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const Divider(height: 1),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                    const Divider(height: 1),
                   ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Báo cáo tháng này",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text("Xem báo cáo"),
-                    style: TextButton.styleFrom(foregroundColor: Colors.green),
-                  ),
-                ],
-              ),
-            ),
-            // Biểu đồ
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 4,
-              child: SizedBox(
-                height: 250,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: PieChartSample2(),
-                ),
-              ),
-            ),
-
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 4,
-              child: SizedBox(
-                height: 200,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SpendingLineChart(),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Giao dịch gần đây
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Giao dịch gần đây",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text("Xem tất cả"),
-                    style: TextButton.styleFrom(foregroundColor: Colors.green),
-                  ),
-                ],
-              ),
-            ),
-
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-              child: Column(
-                children: const [
-                  ListTile(
-                    leading: Icon(Icons.shopping_cart, color: Colors.red),
-                    title: Text("Mua sắm siêu thị"),
-                    subtitle: Text("8/9/2025"),
-                    trailing: Text(
-                      "-\$45.90",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                  Divider(height: 1),
-                  ListTile(
-                    leading: Icon(Icons.work, color: Colors.green),
-                    title: Text("Lương tháng 9"),
-                    subtitle: Text("6/9/2025"),
-                    trailing: Text(
-                      "+\$2000.00",
-                      style: TextStyle(color: Colors.green),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -333,6 +181,78 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+class ChartCard extends StatelessWidget {
+  final Widget child;
+  const ChartCard({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Color(0xFFF6F5F2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      child: SizedBox(height: 200, child: Padding(padding: const EdgeInsets.all(16), child: child)),
+    );
+  }
+}
+
+class TextSection extends StatelessWidget {
+  final String title;
+  final String actionText;
+  final VoidCallback? onAction;
+
+  const TextSection({super.key, required this.title, required this.actionText, this.onAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          TextButton(
+            onPressed: onAction,
+            child: Text(actionText),
+            style: TextButton.styleFrom(foregroundColor: Colors.green),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TransactionCard extends StatelessWidget {
+  const TransactionCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Color(0xFFF6F5F2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      child: Column(
+        children: const [
+          ListTile(
+            leading: Icon(Icons.shopping_cart, color: Colors.red),
+            title: Text("Mua sắm siêu thị"),
+            subtitle: Text("8/9/2025"),
+            trailing: Text("-\$45.90", style: TextStyle(color: Colors.red)),
+          ),
+          Divider(height: 1),
+          ListTile(
+            leading: Icon(Icons.work, color: Colors.green),
+            title: Text("Lương tháng 9"),
+            subtitle: Text("6/9/2025"),
+            trailing: Text("+\$2000.00", style: TextStyle(color: Colors.green)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class SpendingLineChart extends StatelessWidget {
   const SpendingLineChart({super.key});
