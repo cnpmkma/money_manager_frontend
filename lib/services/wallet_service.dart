@@ -41,7 +41,7 @@ class WalletService {
     return res.data as Map<String, dynamic>;
   }
 
-    // Cập nhật ví
+  // Cập nhật ví
   static Future<Map<String, dynamic>> updateWallet(
     int id,
     String name,
@@ -67,5 +67,4 @@ class WalletService {
       options: Options(headers: {"Authorization": "Bearer $token"}),
     );
   }
-
 }

@@ -2,11 +2,13 @@ import '../services/transaction_service.dart';
 import '../models/transaction.dart';
 
 class TransactionRepository {
-
   /// Lấy danh sách giao dịch
   Future<List<Transaction>> getTransactions({int? walletId}) async {
     final data = await TransactionService.getTransactions(walletId: walletId);
-    return data.map((json) => Transaction.fromJson(json)).toList().cast<Transaction>();
+    return data
+        .map((json) => Transaction.fromJson(json))
+        .toList()
+        .cast<Transaction>();
   }
 
   /// Thêm giao dịch

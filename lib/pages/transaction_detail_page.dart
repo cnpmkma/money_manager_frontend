@@ -27,25 +27,28 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   @override
   void initState() {
     super.initState();
-    _amountController =
-        TextEditingController(text: widget.transaction.amount.toString());
-    _noteController = TextEditingController(text: widget.transaction.note ?? '');
+    _amountController = TextEditingController(
+      text: widget.transaction.amount.toString(),
+    );
+    _noteController = TextEditingController(
+      text: widget.transaction.note ?? '',
+    );
     _selectedWalletId = widget.transaction.walletId;
     _selectedCategoryId = widget.transaction.categoryId;
     _selectedDate = widget.transaction.transactionDate;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    final walletProvider = context.read<WalletProvider>();
-    final categoryProvider = context.read<CategoryProvider>();
+      final walletProvider = context.read<WalletProvider>();
+      final categoryProvider = context.read<CategoryProvider>();
 
-    if (walletProvider.wallets.isEmpty) {
-      walletProvider.loadWallets();
-    }
+      if (walletProvider.wallets.isEmpty) {
+        walletProvider.loadWallets();
+      }
 
-    if (categoryProvider.categories.isEmpty) {
-      categoryProvider.loadCategories();
-    }
-  });
+      if (categoryProvider.categories.isEmpty) {
+        categoryProvider.loadCategories();
+      }
+    });
   }
 
   Future<void> _pickDate() async {
@@ -62,8 +65,11 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   Widget build(BuildContext context) {
     final walletProvider = context.watch<WalletProvider>();
     final categoryProvider = context.watch<CategoryProvider>();
-    final currencyFormatter =
-        NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'vi_VN',
+      symbol: '₫',
+      decimalDigits: 0,
+    );
 
     // Loading indicator
     if (walletProvider.loading ||
@@ -104,12 +110,16 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                     transactionDate: _selectedDate,
                   );
                   context.read<TransactionProvider>().loadTransactions();
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Cập nhật giao dịch thành công")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Cập nhật giao dịch thành công"),
+                    ),
+                  );
                   setState(() => _isEditing = false);
                 } catch (e) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
                 }
               } else {
                 setState(() => _isEditing = true);
@@ -127,25 +137,31 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                     content: const Text("Bạn có chắc muốn xóa giao dịch này?"),
                     actions: [
                       TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text("Hủy")),
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text("Hủy"),
+                      ),
                       TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text("Xóa")),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text("Xóa"),
+                      ),
                     ],
                   ),
                 );
                 if (confirm != true) return;
 
                 try {
-                  await TransactionService.deleteTransaction(widget.transaction.id);
+                  await TransactionService.deleteTransaction(
+                    widget.transaction.id,
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Xóa giao dịch thành công")));
+                    const SnackBar(content: Text("Xóa giao dịch thành công")),
+                  );
                   context.read<TransactionProvider>().loadTransactions();
                   Navigator.pop(context);
                 } catch (e) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
                 }
               },
             ),
@@ -171,10 +187,12 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                       ? DropdownButtonFormField<int>(
                           value: _selectedCategoryId,
                           items: categoryProvider.categories
-                              .map((c) => DropdownMenuItem<int>(
-                                    value: c['id'] as int,
-                                    child: Text(c['category_name']),
-                                  ))
+                              .map(
+                                (c) => DropdownMenuItem<int>(
+                                  value: c['id'] as int,
+                                  child: Text(c['category_name']),
+                                ),
+                              )
                               .toList(),
                           onChanged: (val) =>
                               setState(() => _selectedCategoryId = val!),
@@ -185,23 +203,28 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                       : Text(
                           category['category_name'],
                           style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                   const SizedBox(height: 10),
                   _isEditing
                       ? TextField(
                           controller: _amountController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: "Số tiền"),
+                          decoration: const InputDecoration(
+                            labelText: "Số tiền",
+                          ),
                         )
                       : Text(
                           "${category['type'] == 'thu' ? '+' : '-'} ${currencyFormatter.format(widget.transaction.amount)}",
                           style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: category['type'] == 'thu'
-                                  ? Colors.green
-                                  : Colors.red),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: category['type'] == 'thu'
+                                ? Colors.green
+                                : Colors.red,
+                          ),
                         ),
                 ],
               ),
@@ -211,7 +234,8 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
             // Thông tin khác
             Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 2,
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -221,34 +245,53 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                         ? DropdownButtonFormField<int>(
                             value: _selectedWalletId,
                             items: walletProvider.wallets
-                                .map((w) => DropdownMenuItem<int>(
-                                      value: w['id'] as int,
-                                      child: Text(w['wallet_name']),
-                                    ))
+                                .map(
+                                  (w) => DropdownMenuItem<int>(
+                                    value: w['id'] as int,
+                                    child: Text(w['wallet_name']),
+                                  ),
+                                )
                                 .toList(),
-                            onChanged: (val) => setState(() => _selectedWalletId = val!),
+                            onChanged: (val) =>
+                                setState(() => _selectedWalletId = val!),
                             decoration: const InputDecoration(labelText: "Ví"),
                           )
-                        : _infoRow(Icons.account_balance_wallet, "Ví",
-                            wallet['wallet_name']),
+                        : _infoRow(
+                            Icons.account_balance_wallet,
+                            "Ví",
+                            wallet['wallet_name'],
+                          ),
                     const Divider(),
                     _isEditing
                         ? ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.calendar_today),
-                            title: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
+                            title: Text(
+                              DateFormat('dd/MM/yyyy').format(_selectedDate),
+                            ),
                             trailing: const Icon(Icons.edit_calendar),
                             onTap: _pickDate,
                           )
-                        : _infoRow(Icons.calendar_today, "Ngày",
-                            DateFormat('dd/MM/yyyy').format(widget.transaction.transactionDate)),
+                        : _infoRow(
+                            Icons.calendar_today,
+                            "Ngày",
+                            DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(widget.transaction.transactionDate),
+                          ),
                     const Divider(),
                     _isEditing
                         ? TextField(
                             controller: _noteController,
-                            decoration: const InputDecoration(labelText: "Ghi chú"),
+                            decoration: const InputDecoration(
+                              labelText: "Ghi chú",
+                            ),
                           )
-                        : _infoRow(Icons.note, "Ghi chú", widget.transaction.note ?? '-'),
+                        : _infoRow(
+                            Icons.note,
+                            "Ghi chú",
+                            widget.transaction.note ?? '-',
+                          ),
                   ],
                 ),
               ),

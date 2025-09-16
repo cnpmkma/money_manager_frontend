@@ -16,8 +16,11 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  final _currencyFormatter =
-      NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+  final _currencyFormatter = NumberFormat.currency(
+    locale: 'vi_VN',
+    symbol: '₫',
+    decimalDigits: 0,
+  );
 
   List<dynamic> _wallets = [];
   int? _selectedWalletId;
@@ -89,10 +92,9 @@ class _TransactionPageState extends State<TransactionPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () =>
-            context.read<TransactionProvider>().loadTransactions(
-                  walletId: _selectedWalletId,
-                ),
+        onRefresh: () => context.read<TransactionProvider>().loadTransactions(
+          walletId: _selectedWalletId,
+        ),
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -106,9 +108,9 @@ class _TransactionPageState extends State<TransactionPage> {
                 setState(() {
                   _selectedWalletId = val;
                 });
-                context
-                    .read<TransactionProvider>()
-                    .loadTransactions(walletId: val);
+                context.read<TransactionProvider>().loadTransactions(
+                  walletId: val,
+                );
               },
               isLoading: provider.isLoading,
             ),
@@ -146,7 +148,8 @@ class _TransactionPageState extends State<TransactionPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TransactionDetailPage(transaction: tx),
+                          builder: (_) =>
+                              TransactionDetailPage(transaction: tx),
                         ),
                       );
                     },
@@ -177,7 +180,7 @@ class SummaryCard extends StatelessWidget {
     required this.selectedWalletId,
     required this.wallets,
     required this.onWalletChanged,
-    required this.isLoading
+    required this.isLoading,
   });
 
   @override
@@ -217,40 +220,43 @@ class SummaryCard extends StatelessWidget {
               children: [
                 Column(
                   children: [
-                    const Text("Thu nhập", style: TextStyle(color: Colors.green)),
+                    const Text(
+                      "Thu nhập",
+                      style: TextStyle(color: Colors.green),
+                    ),
                     isLoading
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          "+${formatter.format(totalIncome)}",
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            "+${formatter.format(totalIncome)}",
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
                   ],
                 ),
                 Column(
                   children: [
                     const Text("Chi tiêu", style: TextStyle(color: Colors.red)),
                     isLoading
-        ? const SizedBox(
-            height: 16,
-            width: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          )
-        : Text(
-            "-${formatter.format(totalExpense)}",
-            style: const TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            "-${formatter.format(totalExpense)}",
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ],
                 ),
               ],
@@ -277,7 +283,7 @@ class TransactionItem extends StatelessWidget {
     required this.isIncome,
     required this.icon,
     required this.formatter,
-    this.onTap
+    this.onTap,
   });
 
   @override

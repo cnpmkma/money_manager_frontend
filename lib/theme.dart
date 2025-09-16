@@ -12,9 +12,6 @@ final ThemeData appTheme = ThemeData(
     showUnselectedLabels: true,
   ),
   iconButtonTheme: IconButtonThemeData(
-    style: IconButton.styleFrom(
-      foregroundColor: Colors.deepPurple,
-    ),
+    style: IconButton.styleFrom(foregroundColor: Colors.deepPurple),
   ),
 );
-

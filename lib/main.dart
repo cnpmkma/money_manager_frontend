@@ -17,10 +17,12 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => WalletProvider(walletRepo)),
-        ChangeNotifierProvider(create: (_) => CategoryProvider()..loadCategories()),
         ChangeNotifierProvider(
-  create: (_) => TransactionProvider()..loadTransactions(),
-),
+          create: (_) => CategoryProvider()..loadCategories(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TransactionProvider()..loadTransactions(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -38,16 +40,17 @@ class MyApp extends StatelessWidget {
       theme: appTheme,
       routes: AppRoutes.getRoutes(),
       home: FutureBuilder(
-        future: AuthService.getLoginStatus(), 
+        future: AuthService.getLoginStatus(),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (!snapshot.hasData) {
             return const Scaffold(
-              body: Center(child: CircularProgressIndicator(),),
+              body: Center(child: CircularProgressIndicator()),
             );
           }
-          return snapshot.data! ? AppRoutes.getRoutes()[AppRoutes.main]!(context)
-                                : AppRoutes.getRoutes()[AppRoutes.login]!(context);
-        }
+          return snapshot.data!
+              ? AppRoutes.getRoutes()[AppRoutes.main]!(context)
+              : AppRoutes.getRoutes()[AppRoutes.login]!(context);
+        },
       ),
     );
   }

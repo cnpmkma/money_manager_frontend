@@ -54,26 +54,31 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Card(
-            color: Color(0xFFF6F5F2),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 4,
-            child: ListTile(
-              title: Text(
-                _showBalance
-                    ? currencyFormatter.format(totalBalance)
-                    : "********",
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              color: Color(0xFFF6F5F2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              trailing: IconButton(
-                icon: Icon(
-                    _showBalance ? Icons.visibility : Icons.visibility_off,  
+              elevation: 4,
+              child: ListTile(
+                title: Text(
+                  _showBalance
+                      ? currencyFormatter.format(totalBalance)
+                      : "********",
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
                   ),
-                onPressed: () => setState(() => _showBalance = !_showBalance),
+                ),
+                trailing: IconButton(
+                  icon: Icon(
+                    _showBalance ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () => setState(() => _showBalance = !_showBalance),
+                ),
+                subtitle: const Text("Tổng số dư"),
               ),
-              subtitle: const Text("Tổng số dư"),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
             WalletCard(
               wallets: _wallets,
               totalBalance: totalBalance,
@@ -82,13 +87,19 @@ class _HomeState extends State<Home> {
               onViewAll: widget.onViewAllWallets,
             ),
             const SizedBox(height: 20),
-            const TextSection(title: "Báo cáo tháng này", actionText: "Xem báo cáo"),
+            const TextSection(
+              title: "Báo cáo tháng này",
+              actionText: "Xem báo cáo",
+            ),
             const SizedBox(height: 8),
             const ChartCard(child: PieChartSample2()),
             const SizedBox(height: 16),
             const ChartCard(child: SpendingLineChart()),
             const SizedBox(height: 20),
-            const TextSection(title: "Giao dịch gần đây", actionText: "Xem tất cả"),
+            const TextSection(
+              title: "Giao dịch gần đây",
+              actionText: "Xem tất cả",
+            ),
             const SizedBox(height: 8),
             const TransactionCard(),
           ],
@@ -128,7 +139,11 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'vi_VN',
+      symbol: '₫',
+      decimalDigits: 0,
+    );
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -142,10 +157,15 @@ class WalletCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Ví của tôi", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Ví của tôi",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 TextButton(
                   onPressed: onViewAll,
-                  style: TextButton.styleFrom(foregroundColor: Colors.deepPurple),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.deepPurple,
+                  ),
                   child: const Text("Xem tất cả"),
                 ),
               ],
@@ -162,11 +182,16 @@ class WalletCard extends StatelessWidget {
                           color: Color(0xFF7F55B1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                        child: const Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.white,
+                        ),
                       ),
                       title: Text(wallet['wallet_name']),
                       trailing: Text(
-                        currencyFormatter.format(double.tryParse(wallet['balance'].toString()) ?? 0),
+                        currencyFormatter.format(
+                          double.tryParse(wallet['balance'].toString()) ?? 0,
+                        ),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -192,7 +217,10 @@ class ChartCard extends StatelessWidget {
       color: Color(0xFFF6F5F2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 4,
-      child: SizedBox(height: 200, child: Padding(padding: const EdgeInsets.all(16), child: child)),
+      child: SizedBox(
+        height: 200,
+        child: Padding(padding: const EdgeInsets.all(16), child: child),
+      ),
     );
   }
 }
@@ -202,7 +230,12 @@ class TextSection extends StatelessWidget {
   final String actionText;
   final VoidCallback? onAction;
 
-  const TextSection({super.key, required this.title, required this.actionText, this.onAction});
+  const TextSection({
+    super.key,
+    required this.title,
+    required this.actionText,
+    this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +244,10 @@ class TextSection extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           TextButton(
             onPressed: onAction,
             child: Text(actionText),
@@ -252,7 +288,6 @@ class TransactionCard extends StatelessWidget {
     );
   }
 }
-
 
 class SpendingLineChart extends StatelessWidget {
   const SpendingLineChart({super.key});

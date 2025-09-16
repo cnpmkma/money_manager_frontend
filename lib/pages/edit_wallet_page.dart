@@ -29,7 +29,9 @@ class _EditWalletPageState extends State<EditWalletPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName);
-    _balanceController = TextEditingController(text: widget.initialBalance.toString());
+    _balanceController = TextEditingController(
+      text: widget.initialBalance.toString(),
+    );
   }
 
   Future<void> _updateWallet() async {
@@ -46,9 +48,9 @@ class _EditWalletPageState extends State<EditWalletPage> {
       widget.onWalletUpdated();
       Navigator.pop(context); // đóng modal
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi khi cập nhật ví: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi khi cập nhật ví: $e")));
     } finally {
       setState(() => _loading = false);
     }
@@ -70,14 +72,16 @@ class _EditWalletPageState extends State<EditWalletPage> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Tên ví"),
-                validator: (value) => value == null || value.isEmpty ? "Nhập tên ví" : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? "Nhập tên ví" : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _balanceController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: "Số dư"),
-                validator: (value) => value == null || double.tryParse(value) == null
+                validator: (value) =>
+                    value == null || double.tryParse(value) == null
                     ? "Nhập số dư hợp lệ"
                     : null,
               ),

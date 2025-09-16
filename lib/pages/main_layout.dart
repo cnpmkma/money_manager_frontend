@@ -129,17 +129,27 @@ class _MainLayoutState extends State<MainLayout> {
             _openAddTransaction(); // nút giữa
           } else {
             // BottomNav index → MainPage
-            final page = [MainPage.home, MainPage.transactions, MainPage.budget, MainPage.account]
-                [index > 2 ? index - 1 : index];
+            final page = [
+              MainPage.home,
+              MainPage.transactions,
+              MainPage.budget,
+              MainPage.account,
+            ][index > 2 ? index - 1 : index];
             _goTo(page);
           }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Tổng quan"),
           BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Giao dịch"),
-          BottomNavigationBarItem(icon: Icon(Icons.add, color: Colors.transparent), label: ""),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add, color: Colors.transparent),
+            label: "",
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Ngân sách"),
-          BottomNavigationBarItem(icon: Icon(Icons.manage_accounts), label: "Tài khoản"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.manage_accounts),
+            label: "Tài khoản",
+          ),
         ],
       ),
     );

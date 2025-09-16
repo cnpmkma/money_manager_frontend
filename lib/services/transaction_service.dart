@@ -44,7 +44,8 @@ class TransactionService {
         "note": note,
         "wallet_id": walletId,
         "category_id": categoryId,
-        "transaction_date": (transactionDate ?? DateTime.now()).toIso8601String(),
+        "transaction_date": (transactionDate ?? DateTime.now())
+            .toIso8601String(),
       },
       options: Options(headers: {"Authorization": "Bearer $token"}),
     );
@@ -70,7 +71,8 @@ class TransactionService {
         "note": note,
         "wallet_id": walletId,
         "category_id": categoryId,
-        "transaction_date": (transactionDate ?? DateTime.now()).toIso8601String(),
+        "transaction_date": (transactionDate ?? DateTime.now())
+            .toIso8601String(),
       },
       options: Options(headers: {"Authorization": "Bearer $token"}),
     );

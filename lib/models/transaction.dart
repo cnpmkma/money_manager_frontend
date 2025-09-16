@@ -20,16 +20,17 @@ class Transaction {
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
-  return Transaction(
-    id: json['id'],
-    amount: double.tryParse(json['amount'].toString()) ?? 0,
-    note: json['note'],
-    transactionDate: DateTime.tryParse(json['transaction_date'].toString()) ?? DateTime.now(),
-    walletId: json['wallet_id'],
-    categoryId: json['category_id'],
-    categoryName: json['category']?['category_name'],
-    categoryType: json['category']?['type'],
-  );
-}
-
+    return Transaction(
+      id: json['id'],
+      amount: double.tryParse(json['amount'].toString()) ?? 0,
+      note: json['note'],
+      transactionDate:
+          DateTime.tryParse(json['transaction_date'].toString()) ??
+          DateTime.now(),
+      walletId: json['wallet_id'],
+      categoryId: json['category_id'],
+      categoryName: json['category']?['category_name'],
+      categoryType: json['category']?['type'],
+    );
+  }
 }

@@ -17,9 +17,9 @@ class _AccountPageState extends State<AccountPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text("Tài khoản"), 
-        centerTitle: true
-        ),
+        title: const Text("Tài khoản"),
+        centerTitle: true,
+      ),
       body: ListView(
         children: [
           const SizedBox(height: 20),

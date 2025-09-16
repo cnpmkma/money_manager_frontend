@@ -111,36 +111,62 @@ class _WalletListPageState extends State<WalletListPage> {
                                   builder: (context) => EditWalletPage(
                                     walletId: wallet['id'],
                                     initialName: wallet['wallet_name'],
-                                    initialBalance: double.tryParse(wallet['balance'].toString()) ?? 0,
-                                    onWalletUpdated: _fetchWallets, // reload lại danh sách
+                                    initialBalance:
+                                        double.tryParse(
+                                          wallet['balance'].toString(),
+                                        ) ??
+                                        0,
+                                    onWalletUpdated:
+                                        _fetchWallets, // reload lại danh sách
                                   ),
                                 );
-                              } else if (value =="delete") {
+                              } else if (value == "delete") {
                                 showDialog(
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
                                       title: const Text("Xóa ví"),
-                                      content: Text("Bạn có chắc chắn muốn xóa ví '${wallet['wallet_name']}' không?"),
+                                      content: Text(
+                                        "Bạn có chắc chắn muốn xóa ví '${wallet['wallet_name']}' không?",
+                                      ),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Navigator.pop(context),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
                                           child: const Text("Hủy"),
                                         ),
                                         ElevatedButton(
-                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                          ),
                                           onPressed: () async {
                                             try {
-                                              await WalletService.deleteWallet(wallet['id']);
-                                              Navigator.pop(context); // đóng dialog
+                                              await WalletService.deleteWallet(
+                                                wallet['id'],
+                                              );
+                                              Navigator.pop(
+                                                context,
+                                              ); // đóng dialog
                                               _fetchWallets(); // refresh list
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text("Xóa ví thành công")),
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    "Xóa ví thành công",
+                                                  ),
+                                                ),
                                               );
                                             } catch (e) {
                                               Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Lỗi khi xóa ví: $e")),
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    "Lỗi khi xóa ví: $e",
+                                                  ),
+                                                ),
                                               );
                                             }
                                           },
@@ -153,8 +179,14 @@ class _WalletListPageState extends State<WalletListPage> {
                               }
                             },
                             itemBuilder: (context) => [
-                              const PopupMenuItem(value: 'edit', child: Text('Sửa')),
-                              const PopupMenuItem(value: 'delete', child: Text('Xóa')),
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Text('Sửa'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Xóa'),
+                              ),
                             ],
                           ),
                         ],

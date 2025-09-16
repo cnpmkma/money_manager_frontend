@@ -90,9 +90,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
       Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
     }
   }
 
@@ -104,7 +104,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: Text(widget.transaction != null ? "Chỉnh sửa giao dịch" : "Thêm giao dịch"),
+        title: Text(
+          widget.transaction != null ? "Chỉnh sửa giao dịch" : "Thêm giao dịch",
+        ),
         centerTitle: true,
       ),
       body: Padding(
@@ -120,7 +122,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   labelText: "Số tiền",
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) => v == null || v.isEmpty ? "Nhập số tiền" : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Nhập số tiền" : null,
               ),
               const SizedBox(height: 16),
 
@@ -156,7 +159,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           child: Text("${w["wallet_name"]} (${w["balance"]}₫)"),
                         );
                       }).toList(),
-                      onChanged: (val) => setState(() => _selectedWalletId = val),
+                      onChanged: (val) =>
+                          setState(() => _selectedWalletId = val),
                       validator: (v) => v == null ? "Chọn ví" : null,
                     ),
               const SizedBox(height: 16),
@@ -180,7 +184,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         child: Text("${c["category_name"]} (${c["type"]})"),
                       );
                     }).toList(),
-                    onChanged: (val) => setState(() => _selectedCategoryId = val),
+                    onChanged: (val) =>
+                        setState(() => _selectedCategoryId = val),
                     validator: (v) => v == null ? "Chọn danh mục" : null,
                   );
                 },
@@ -195,7 +200,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(widget.transaction != null ? "Cập nhật" : "Lưu giao dịch"),
+                child: Text(
+                  widget.transaction != null ? "Cập nhật" : "Lưu giao dịch",
+                ),
               ),
             ],
           ),

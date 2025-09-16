@@ -46,8 +46,8 @@ class _BudgetPageState extends State<BudgetPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text("Ngân sách"), 
-        centerTitle: true
+        title: const Text("Ngân sách"),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

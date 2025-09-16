@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class CategoryService {
   static String get baseUrl => dotenv.env['API_BASE_URL']!;
 
-  static final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl)); 
+  static final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
   static Future<List<Map<String, dynamic>>> getCategories() async {
     final token = await AuthService.getToken();

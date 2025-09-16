@@ -85,8 +85,9 @@ class _LoginState extends State<Login> {
         ),
         style: const TextStyle(color: Colors.white, fontSize: 16),
         cursorColor: Colors.white,
-        validator: (value) =>
-            (value == null || value.isEmpty) ? "$hint không được để trống." : null,
+        validator: (value) => (value == null || value.isEmpty)
+            ? "$hint không được để trống."
+            : null,
       ),
     );
   }
@@ -123,10 +124,16 @@ class _LoginState extends State<Login> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildTextField(controller: _usernameController, hint: "Tên đăng nhập"),
+                    _buildTextField(
+                      controller: _usernameController,
+                      hint: "Tên đăng nhập",
+                    ),
                     const SizedBox(height: 16),
                     _buildTextField(
-                        controller: _passwordController, hint: "Mật khẩu", obscureText: true),
+                      controller: _passwordController,
+                      hint: "Mật khẩu",
+                      obscureText: true,
+                    ),
                   ],
                 ),
               ),
@@ -136,8 +143,10 @@ class _LoginState extends State<Login> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF03F9C),
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 14,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
