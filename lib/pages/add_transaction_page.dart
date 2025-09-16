@@ -8,7 +8,7 @@ import '../providers/category_provider.dart';
 import '../models/transaction.dart';
 
 class AddTransactionPage extends StatefulWidget {
-  final Transaction? transaction;
+  final TransactionModel? transaction;
   const AddTransactionPage({super.key, this.transaction});
 
   @override

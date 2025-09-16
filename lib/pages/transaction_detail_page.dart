@@ -9,7 +9,7 @@ import '../providers/category_provider.dart';
 import '../widgets/gradient_scaffold.dart';
 
 class TransactionDetailPage extends StatefulWidget {
-  final Transaction transaction;
+  final TransactionModel transaction;
   const TransactionDetailPage({super.key, required this.transaction});
 
   @override
