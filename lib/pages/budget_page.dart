@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 
 class BudgetPage extends StatefulWidget {
   const BudgetPage({super.key});
@@ -41,8 +42,13 @@ class _BudgetPageState extends State<BudgetPage> {
     double totalLimit = _budgets.fold(0, (sum, b) => sum + b["limit"]);
     double totalSpent = _budgets.fold(0, (sum, b) => sum + b["spent"]);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text("Ngân sách"), centerTitle: true),
+    return GradientScaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        title: const Text("Ngân sách"), 
+        centerTitle: true
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

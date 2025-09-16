@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/pages/login_page.dart';
 import 'package:money_manager_frontend/services/auth_service.dart';
+import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -12,8 +13,13 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Tài khoản"), centerTitle: true),
+    return GradientScaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        title: const Text("Tài khoản"), 
+        centerTitle: true
+        ),
       body: ListView(
         children: [
           const SizedBox(height: 20),

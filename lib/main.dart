@@ -3,11 +3,24 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:money_manager_frontend/routes.dart';
 import 'package:money_manager_frontend/services/auth_service.dart';
 import 'package:money_manager_frontend/theme.dart';
+import 'package:money_manager_frontend/repositories/wallet_repository.dart';
+import 'package:money_manager_frontend/providers/wallet_provider.dart';
+import 'package:money_manager_frontend/providers/category_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(const MyApp());
+  final walletRepo = WalletRepository();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => WalletProvider(walletRepo)),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()..loadCategories()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

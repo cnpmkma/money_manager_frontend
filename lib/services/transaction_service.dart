@@ -25,4 +25,28 @@ class TransactionService {
 
     return res.data as List<dynamic>;
   }
+
+  static Future<Map<String, dynamic>> addTransaction({
+    required double amount,
+    String? note,
+    required int walletId,
+    required int categoryId,
+    DateTime? transactionDate,
+  }) async {
+    final token = await AuthService.getToken();
+
+    final res = await _dio.post(
+      "/transactions",
+      data: {
+        "amount": amount,
+        "note": note,
+        "wallet_id": walletId,
+        "category_id": categoryId,
+        "transaction_date": (transactionDate ?? DateTime.now()).toIso8601String(),
+      },
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
+
+    return res.data as Map<String, dynamic>;
+  }
 }
