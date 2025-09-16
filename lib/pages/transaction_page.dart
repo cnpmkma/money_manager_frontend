@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../services/transaction_service.dart';
+import 'package:provider/provider.dart';
+
+import '../models/transaction.dart';
+import '../providers/transaction_provider.dart';
 import '../services/wallet_service.dart';
-import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
+import '../widgets/gradient_scaffold.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
@@ -12,86 +15,65 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  List<Map<String, dynamic>> _transactions = [];
-  List<dynamic> _wallets = [];
-  int? _selectedWalletId = null;
-  String _filter = "all"; // all, income, expense
-  bool _loading = true;
-
   final _currencyFormatter =
       NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+
+  List<dynamic> _wallets = [];
+  int? _selectedWalletId;
+  String _filter = "all"; // all, income, expense
 
   @override
   void initState() {
     super.initState();
     _fetchWallets();
+    // fetch transactions lần đầu
+    Future.microtask(() {
+      context.read<TransactionProvider>().loadTransactions();
+    });
   }
 
   Future<void> _fetchWallets() async {
     try {
       final wallets = await WalletService.getWallets();
-      setState(() {
-        _wallets = wallets;
-        _fetchTransactions();
-      });
+      setState(() => _wallets = wallets);
     } catch (e) {
-      print("Error fetching wallets: $e");
-      setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _fetchTransactions() async {
-    try {
-      setState(() => _loading = true);
-      final data =
-          await TransactionService.getTransactions(walletId: _selectedWalletId);
-      setState(() {
-        _transactions = data.map<Map<String, dynamic>>((tx) {
-          final isIncome = tx["category"]['type'] == "thu";
-          return {
-            "title": tx['category']['category_name'],
-            "amount": double.tryParse(tx["amount"].toString()) ?? 0.0,
-            "date": DateTime.parse(tx["transaction_date"]),
-            "type": isIncome ? "income" : "expense",
-            "icon": isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-          };
-        }).toList();
-        _loading = false;
-      });
-    } catch (e) {
-      print("Error fetching transactions: $e");
-      setState(() => _loading = false);
+      debugPrint("Error fetching wallets: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
+    final provider = context.watch<TransactionProvider>();
+    final transactions = provider.transactions;
+
+    if (provider.isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    // Lọc theo loại
-    final filtered = _transactions.where((tx) {
+    // lọc theo loại
+    final filtered = transactions.where((tx) {
       if (_filter == "all") return true;
-      return tx["type"] == _filter;
+      return _filter == "income"
+          ? tx.categoryType == "thu"
+          : tx.categoryType == "chi";
     }).toList();
 
-    // Gom nhóm theo ngày
-    final grouped = <String, List<Map<String, dynamic>>>{};
+    // nhóm theo ngày
+    final grouped = <String, List<Transaction>>{};
     for (var tx in filtered) {
-      final dateStr = DateFormat("dd/MM/yyyy").format(tx["date"]);
+      final dateStr = DateFormat("dd/MM/yyyy").format(tx.transactionDate);
       grouped.putIfAbsent(dateStr, () => []).add(tx);
     }
 
-    // Tính tổng
-    final totalIncome = _transactions
-        .where((tx) => tx["type"] == "income")
-        .fold<double>(0, (sum, tx) => sum + tx["amount"]);
-    final totalExpense = _transactions
-        .where((tx) => tx["type"] == "expense")
-        .fold<double>(0, (sum, tx) => sum + tx["amount"]);
+    // tính tổng
+    final totalIncome = transactions
+        .where((tx) => tx.categoryType == "thu")
+        .fold<double>(0, (sum, tx) => sum + tx.amount);
+    final totalExpense = transactions
+        .where((tx) => tx.categoryType == "chi")
+        .fold<double>(0, (sum, tx) => sum + tx.amount);
 
     return GradientScaffold(
       appBar: AppBar(
@@ -112,7 +94,10 @@ class _TransactionPageState extends State<TransactionPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _fetchTransactions,
+        onRefresh: () =>
+            context.read<TransactionProvider>().loadTransactions(
+                  walletId: _selectedWalletId,
+                ),
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -126,7 +111,9 @@ class _TransactionPageState extends State<TransactionPage> {
                 setState(() {
                   _selectedWalletId = val;
                 });
-                _fetchTransactions();
+                context
+                    .read<TransactionProvider>()
+                    .loadTransactions(walletId: val);
               },
             ),
             const SizedBox(height: 20),
@@ -150,13 +137,17 @@ class _TransactionPageState extends State<TransactionPage> {
                     ),
                   ),
                 ),
-                ...entry.value.map((tx) => TransactionItem(
-                      title: tx["title"],
-                      amount: tx["amount"],
-                      isIncome: tx["type"] == "income",
-                      icon: tx["icon"],
-                      formatter: _currencyFormatter,
-                    )),
+                ...entry.value.map(
+                  (tx) => TransactionItem(
+                    title: tx.categoryName,
+                    amount: tx.amount,
+                    isIncome: tx.categoryType == "thu",
+                    icon: tx.categoryType == "thu"
+                        ? Icons.arrow_downward
+                        : Icons.arrow_upward,
+                    formatter: _currencyFormatter,
+                  ),
+                ),
               ],
           ],
         ),

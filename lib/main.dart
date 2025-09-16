@@ -6,6 +6,7 @@ import 'package:money_manager_frontend/theme.dart';
 import 'package:money_manager_frontend/repositories/wallet_repository.dart';
 import 'package:money_manager_frontend/providers/wallet_provider.dart';
 import 'package:money_manager_frontend/providers/category_provider.dart';
+import 'package:money_manager_frontend/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -17,6 +18,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => WalletProvider(walletRepo)),
         ChangeNotifierProvider(create: (_) => CategoryProvider()..loadCategories()),
+        ChangeNotifierProvider(
+  create: (_) => TransactionProvider()..loadTransactions(),
+),
       ],
       child: const MyApp(),
     ),
