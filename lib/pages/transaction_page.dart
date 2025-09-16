@@ -6,6 +6,7 @@ import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../services/wallet_service.dart';
 import '../widgets/gradient_scaffold.dart';
+import 'transaction_detail_page.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
@@ -45,12 +46,6 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
     final transactions = provider.transactions;
-
-    if (provider.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
 
     // lọc theo loại
     final filtered = transactions.where((tx) {
@@ -115,6 +110,7 @@ class _TransactionPageState extends State<TransactionPage> {
                     .read<TransactionProvider>()
                     .loadTransactions(walletId: val);
               },
+              isLoading: provider.isLoading,
             ),
             const SizedBox(height: 20),
             if (grouped.isEmpty)
@@ -146,6 +142,14 @@ class _TransactionPageState extends State<TransactionPage> {
                         ? Icons.arrow_downward
                         : Icons.arrow_upward,
                     formatter: _currencyFormatter,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TransactionDetailPage(transaction: tx),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -163,6 +167,7 @@ class SummaryCard extends StatelessWidget {
   final int? selectedWalletId;
   final List<dynamic> wallets;
   final ValueChanged<int?> onWalletChanged;
+  final bool isLoading;
 
   const SummaryCard({
     super.key,
@@ -172,6 +177,7 @@ class SummaryCard extends StatelessWidget {
     required this.selectedWalletId,
     required this.wallets,
     required this.onWalletChanged,
+    required this.isLoading
   });
 
   @override
@@ -212,27 +218,39 @@ class SummaryCard extends StatelessWidget {
                 Column(
                   children: [
                     const Text("Thu nhập", style: TextStyle(color: Colors.green)),
-                    Text(
-                      "+${formatter.format(totalIncome)}",
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    isLoading
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(
+                          "+${formatter.format(totalIncome)}",
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                   ],
                 ),
                 Column(
                   children: [
                     const Text("Chi tiêu", style: TextStyle(color: Colors.red)),
-                    Text(
-                      "-${formatter.format(totalExpense)}",
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    isLoading
+        ? const SizedBox(
+            height: 16,
+            width: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : Text(
+            "-${formatter.format(totalExpense)}",
+            style: const TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
                   ],
                 ),
               ],
@@ -250,6 +268,7 @@ class TransactionItem extends StatelessWidget {
   final bool isIncome;
   final IconData icon;
   final NumberFormat formatter;
+  final VoidCallback? onTap;
 
   const TransactionItem({
     super.key,
@@ -258,6 +277,7 @@ class TransactionItem extends StatelessWidget {
     required this.isIncome,
     required this.icon,
     required this.formatter,
+    this.onTap
   });
 
   @override
@@ -279,6 +299,7 @@ class TransactionItem extends StatelessWidget {
             fontSize: 16,
           ),
         ),
+        onTap: onTap,
       ),
     );
   }

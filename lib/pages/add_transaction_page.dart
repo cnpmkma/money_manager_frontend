@@ -5,9 +5,11 @@ import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
 import '../providers/category_provider.dart';
+import '../models/transaction.dart';
 
 class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+  final Transaction? transaction;
+  const AddTransactionPage({super.key, this.transaction});
 
   @override
   State<AddTransactionPage> createState() => _AddTransactionPageState();
@@ -25,9 +27,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   void initState() {
     super.initState();
+
     // load wallets khi mở page
-    Future.microtask(() =>
-        context.read<WalletProvider>().loadWallets());
+    Future.microtask(() => context.read<WalletProvider>().loadWallets());
+
+    // Prefill dữ liệu nếu edit
+    if (widget.transaction != null) {
+      _amountController.text = widget.transaction!.amount.toString();
+      _noteController.text = widget.transaction!.note ?? '';
+      _selectedWalletId = widget.transaction!.walletId;
+      _selectedCategoryId = widget.transaction!.categoryId;
+      _selectedDate = widget.transaction!.transactionDate;
+    }
   }
 
   Future<void> _pickDate() async {
@@ -50,19 +61,34 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
 
     try {
-      final res = await TransactionService.addTransaction(
-        amount: double.parse(_amountController.text),
-        note: _noteController.text,
-        walletId: _selectedWalletId!,
-        categoryId: _selectedCategoryId!,
-        transactionDate: _selectedDate,
-      );
+      if (widget.transaction != null) {
+        // Edit transaction
+        await TransactionService.updateTransaction(
+          id: widget.transaction!.id,
+          amount: double.parse(_amountController.text),
+          note: _noteController.text,
+          walletId: _selectedWalletId!,
+          categoryId: _selectedCategoryId!,
+          transactionDate: _selectedDate,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Cập nhật giao dịch thành công")),
+        );
+      } else {
+        // Add mới
+        await TransactionService.addTransaction(
+          amount: double.parse(_amountController.text),
+          note: _noteController.text,
+          walletId: _selectedWalletId!,
+          categoryId: _selectedCategoryId!,
+          transactionDate: _selectedDate,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Thêm giao dịch thành công")),
+        );
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Thêm giao dịch thành công")),
-      );
-
-      Navigator.pop(context, res);
+      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Lỗi: $e")),
@@ -78,7 +104,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text("Thêm giao dịch"),
+        title: Text(widget.transaction != null ? "Chỉnh sửa giao dịch" : "Thêm giao dịch"),
         centerTitle: true,
       ),
       body: Padding(
@@ -94,8 +120,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   labelText: "Số tiền",
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Nhập số tiền" : null,
+                validator: (v) => v == null || v.isEmpty ? "Nhập số tiền" : null,
               ),
               const SizedBox(height: 16),
 
@@ -116,7 +141,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               ),
               const SizedBox(height: 16),
 
-              // 📌 Dropdown ví (dùng WalletProvider)
+              // Dropdown ví
               walletProvider.loading
                   ? const Center(child: CircularProgressIndicator())
                   : DropdownButtonFormField<int>(
@@ -128,16 +153,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       items: walletProvider.wallets.map((w) {
                         return DropdownMenuItem(
                           value: w["id"] as int,
-                          child: Text(
-                              "${w["wallet_name"]} (${w["balance"]}₫)"),
+                          child: Text("${w["wallet_name"]} (${w["balance"]}₫)"),
                         );
                       }).toList(),
-                      onChanged: (val) =>
-                          setState(() => _selectedWalletId = val),
+                      onChanged: (val) => setState(() => _selectedWalletId = val),
                       validator: (v) => v == null ? "Chọn ví" : null,
                     ),
               const SizedBox(height: 16),
 
+              // Dropdown danh mục
               Consumer<CategoryProvider>(
                 builder: (context, categoryProvider, _) {
                   if (categoryProvider.isLoading) {
@@ -171,7 +195,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text("Lưu giao dịch"),
+                child: Text(widget.transaction != null ? "Cập nhật" : "Lưu giao dịch"),
               ),
             ],
           ),

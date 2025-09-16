@@ -14,6 +14,7 @@ class TransactionService {
     ),
   );
 
+  // Lấy danh sách transactions
   static Future<List<dynamic>> getTransactions({int? walletId}) async {
     final token = await AuthService.getToken();
 
@@ -26,6 +27,7 @@ class TransactionService {
     return res.data as List<dynamic>;
   }
 
+  // Thêm transaction mới
   static Future<Map<String, dynamic>> addTransaction({
     required double amount,
     String? note,
@@ -48,5 +50,41 @@ class TransactionService {
     );
 
     return res.data as Map<String, dynamic>;
+  }
+
+  // Cập nhật transaction
+  static Future<Map<String, dynamic>> updateTransaction({
+    required int id,
+    required double amount,
+    String? note,
+    required int walletId,
+    required int categoryId,
+    DateTime? transactionDate,
+  }) async {
+    final token = await AuthService.getToken();
+
+    final res = await _dio.patch(
+      "/transactions/$id",
+      data: {
+        "amount": amount,
+        "note": note,
+        "wallet_id": walletId,
+        "category_id": categoryId,
+        "transaction_date": (transactionDate ?? DateTime.now()).toIso8601String(),
+      },
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
+
+    return res.data as Map<String, dynamic>;
+  }
+
+  // Xóa transaction
+  static Future<void> deleteTransaction(int id) async {
+    final token = await AuthService.getToken();
+
+    await _dio.delete(
+      "/transactions/$id",
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
   }
 }

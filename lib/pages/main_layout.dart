@@ -47,7 +47,6 @@ class _MainLayoutState extends State<MainLayout> {
   void _openAddTransaction() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       builder: (_) => const AddTransactionPage(),
     );
   }

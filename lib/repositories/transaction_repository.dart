@@ -2,7 +2,6 @@ import '../services/transaction_service.dart';
 import '../models/transaction.dart';
 
 class TransactionRepository {
-  final TransactionService _service = TransactionService();
 
   /// Lấy danh sách giao dịch
   Future<List<Transaction>> getTransactions({int? walletId}) async {
