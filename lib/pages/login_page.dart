@@ -31,7 +31,6 @@ class _LoginState extends State<Login> {
       );
 
       if (result['success'] == true) {
-        // Show success snackbar floating
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message']),

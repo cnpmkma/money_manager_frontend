@@ -59,7 +59,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: MediaQuery.of(context).viewInsets, // tránh bàn phím che
+      padding: MediaQuery.of(context).viewInsets, 
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

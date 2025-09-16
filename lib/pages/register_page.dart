@@ -137,13 +137,15 @@ class _RegisterState extends State<Register> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return "Email không được để trống.";
+                        }
                         final emailRegex = RegExp(
                           r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                         );
-                        if (!emailRegex.hasMatch(value))
+                        if (!emailRegex.hasMatch(value)) {
                           return "Email không hợp lệ.";
+                        }
                         return null;
                       },
                     ),
@@ -153,10 +155,12 @@ class _RegisterState extends State<Register> {
                       controller: _passwordController,
                       obscureText: true,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return "Mật khẩu không được để trống.";
-                        if (value.length < 6)
+                        }
+                        if (value.length < 6) {
                           return "Mật khẩu phải có ít nhất 6 ký tự.";
+                        }
                         return null;
                       },
                     ),
@@ -166,10 +170,12 @@ class _RegisterState extends State<Register> {
                       controller: _confirmPasswordController,
                       obscureText: true,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return "Vui lòng nhập lại mật khẩu.";
-                        if (value != _passwordController.text)
+                        }
+                        if (value != _passwordController.text) {
                           return "Mật khẩu không khớp.";
+                        }
                         return null;
                       },
                     ),

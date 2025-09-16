@@ -88,7 +88,7 @@ class _MainLayoutState extends State<MainLayout> {
       case MainPage.transactions:
         return 1;
       case MainPage.budget:
-        return 3; // skip placeholder
+        return 3; 
       case MainPage.account:
         return 4;
       default:
@@ -126,9 +126,8 @@ class _MainLayoutState extends State<MainLayout> {
         currentIndex: _bottomNavIndex(),
         onTap: (index) {
           if (index == 2) {
-            _openAddTransaction(); // nút giữa
+            _openAddTransaction(); 
           } else {
-            // BottomNav index → MainPage
             final page = [
               MainPage.home,
               MainPage.transactions,

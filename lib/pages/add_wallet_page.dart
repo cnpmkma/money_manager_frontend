@@ -27,7 +27,7 @@ class _AddWalletPageState extends State<AddWalletPage> {
         _nameController.text,
         double.tryParse(_balanceController.text) ?? 0,
       );
-      widget.onWalletAdded(); // callback để refresh danh sách ví
+      widget.onWalletAdded(); 
       Navigator.pop(context);
     } catch (e) {
       print("Error adding wallet: $e");
