@@ -86,7 +86,7 @@ class _HomeState extends State<Home> {
               showBalance: _showBalance,
               toggleBalance: () => setState(() => _showBalance = !_showBalance),
               onViewAll: widget.onViewAllWallets,
-              refreshWallets: _fetchWallets
+              refreshWallets: _fetchWallets,
             ),
             const SizedBox(height: 20),
             const TextSection(
@@ -140,7 +140,7 @@ class WalletCard extends StatelessWidget {
     required this.showBalance,
     this.toggleBalance,
     this.onViewAll,
-    this.refreshWallets
+    this.refreshWallets,
   });
 
   @override
@@ -169,15 +169,17 @@ class WalletCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () async {
-  final changed = await Navigator.push(
-  context,
-  MaterialPageRoute(builder: (context) => const WalletListPage()),
-);
+                    final changed = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WalletListPage(),
+                      ),
+                    );
 
-if (changed == true) {
-  await refreshWallets!();
-}
-},
+                    if (changed == true) {
+                      await refreshWallets!();
+                    }
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.deepPurple,
                   ),
@@ -194,7 +196,9 @@ if (changed == true) {
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image(
-                          image: AssetImage("assets/skin_${wallet['skin_index'] ?? 1}.png"),
+                          image: AssetImage(
+                            "assets/skin_${wallet['skin_index'] ?? 1}.png",
+                          ),
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,

@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 import 'add_wallet_page.dart';
 import 'edit_wallet_page.dart';
-import '../theme.dart';
 
 class WalletListPage extends StatefulWidget {
   const WalletListPage({super.key});
@@ -64,15 +63,15 @@ class _WalletListPageState extends State<WalletListPage> {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => AddWalletPage(
-      onWalletAdded: () {
-        _fetchWallets(); // reload danh sách ví
-      },
-    ),
-  ),
-);
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddWalletPage(
+                              onWalletAdded: () {
+                                _fetchWallets(); // reload danh sách ví
+                              },
+                            ),
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.add),
                       label: const Text("Thêm ví mới"),
@@ -90,13 +89,15 @@ class _WalletListPageState extends State<WalletListPage> {
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image(
-                          image: AssetImage("assets/skin_${wallet['skin_index'] ?? 1}.png"),
+                          image: AssetImage(
+                            "assets/skin_${wallet['skin_index'] ?? 1}.png",
+                          ),
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
                         ),
                       ),
-                    
+
                       title: Text(wallet['wallet_name']),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -109,19 +110,18 @@ class _WalletListPageState extends State<WalletListPage> {
                             onSelected: (value) {
                               if (value == "edit") {
                                 Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => EditWalletPage(
-      walletId: wallet['id'],
-      initialName: wallet['wallet_name'],
-      initialSkin: wallet['skin_index'] ?? 1, 
-      onWalletUpdated: () {
-        _fetchWallets();
-      },
-    ),
-  ),
-);
-
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditWalletPage(
+                                      walletId: wallet['id'],
+                                      initialName: wallet['wallet_name'],
+                                      initialSkin: wallet['skin_index'] ?? 1,
+                                      onWalletUpdated: () {
+                                        _fetchWallets();
+                                      },
+                                    ),
+                                  ),
+                                );
                               } else if (value == "delete") {
                                 showDialog(
                                   context: context,
@@ -156,12 +156,11 @@ class _WalletListPageState extends State<WalletListPage> {
                                                 const SnackBar(
                                                   content: Text(
                                                     "Xóa ví thành công",
-                                                    
                                                   ),
                                                   backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.all(16),
-                                                  
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  margin: EdgeInsets.all(16),
                                                 ),
                                               );
                                             } catch (e) {
@@ -174,8 +173,11 @@ class _WalletListPageState extends State<WalletListPage> {
                                                     "Lỗi khi xóa ví: $e",
                                                   ),
                                                   backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  margin: const EdgeInsets.all(
+                                                    16,
+                                                  ),
                                                 ),
                                               );
                                             }

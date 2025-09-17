@@ -27,24 +27,24 @@ class WalletService {
   }
 
   static Future<Map<String, dynamic>> createWallet(
-  String name,
-  double balance,
-  {int skinIndex = 1}
-) async {
-  final token = await AuthService.getToken();
+    String name,
+    double balance, {
+    int skinIndex = 1,
+  }) async {
+    final token = await AuthService.getToken();
 
-  final res = await _dio.post(
-    "/wallets",
-    data: {
-      "wallet_name": name,
-      "balance": balance,
-      "skin_index": skinIndex, // gửi skin_index lên backend
-    },
-    options: Options(headers: {"Authorization": "Bearer $token"}),
-  );
+    final res = await _dio.post(
+      "/wallets",
+      data: {
+        "wallet_name": name,
+        "balance": balance,
+        "skin_index": skinIndex, // gửi skin_index lên backend
+      },
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
 
-  return res.data as Map<String, dynamic>;
-}
+    return res.data as Map<String, dynamic>;
+  }
 
   // Cập nhật ví
   static Future<void> updateWallet(

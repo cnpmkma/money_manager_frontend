@@ -303,100 +303,117 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20,),
+                    SizedBox(height: 20),
                     Align(
-  alignment: Alignment.center,
-  child: SizedBox(
-    width: 200,
-    child: ElevatedButton(
-      onPressed: _submit,
-      style: ElevatedButton.styleFrom(
-        
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        backgroundColor: const Color(0xFF7F55B1),
-        foregroundColor: Colors.white,
-      ),
-      child: Text(
-        widget.transaction != null ? "Cập nhật" : "Lưu giao dịch",
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w300
-        ),
-      ),
-    ),
-  ),
-),
-if (widget.transaction != null) ...[
-  const SizedBox(height: 12),
-  Align(
-    alignment: Alignment.center,
-    child: SizedBox(
-      width: 200,
-      child: ElevatedButton(
-        onPressed: () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text("Xóa giao dịch", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-              content: const Text("Bạn có chắc muốn xóa giao dịch này không?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text("Hủy"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text("Xóa", style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            ),
-          );
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 200,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            backgroundColor: const Color(0xFF7F55B1),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(
+                            widget.transaction != null
+                                ? "Cập nhật"
+                                : "Lưu giao dịch",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (widget.transaction != null) ...[
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 200,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text(
+                                    "Xóa giao dịch",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  content: const Text(
+                                    "Bạn có chắc muốn xóa giao dịch này không?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, false),
+                                      child: const Text("Hủy"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, true),
+                                      child: const Text(
+                                        "Xóa",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
 
-          if (confirm == true) {
-            try {
-              await TransactionService.deleteTransaction(
-                widget.transaction!['id'],
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Đã xóa giao dịch"),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.all(16),
-                ),
-              );
-              Navigator.pop(context, true);
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Lỗi: $e"),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                  margin: const EdgeInsets.all(16),
-                ),
-              );
-            }
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-        ),
-        child: const Text("Xóa", style: TextStyle(fontWeight: FontWeight.w100, fontSize: 18),),
-      ),
-    ),
-  ),
-]
-
+                              if (confirm == true) {
+                                try {
+                                  await TransactionService.deleteTransaction(
+                                    widget.transaction!['id'],
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Đã xóa giao dịch"),
+                                      backgroundColor: Colors.red,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(16),
+                                    ),
+                                  );
+                                  Navigator.pop(context, true);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Lỗi: $e"),
+                                      backgroundColor: Colors.red,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: const EdgeInsets.all(16),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text(
+                              "Xóa",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w100,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-
                 ),
               ),
             ),

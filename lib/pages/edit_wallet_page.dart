@@ -46,9 +46,9 @@ class _EditWalletPageState extends State<EditWalletPage> {
       widget.onWalletUpdated();
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi khi cập nhật ví: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi khi cập nhật ví: $e")));
     } finally {
       setState(() => _loading = false);
     }
@@ -59,10 +59,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
     final skinOptions = List.generate(12, (i) => i + 1);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Sửa ví"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Sửa ví"), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -72,8 +69,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Tên ví"),
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Nhập tên ví" : null,
+                validator: (v) => v == null || v.isEmpty ? "Nhập tên ví" : null,
               ),
               const SizedBox(height: 16),
 
@@ -81,21 +77,23 @@ class _EditWalletPageState extends State<EditWalletPage> {
                 value: _selectedSkin,
                 decoration: const InputDecoration(labelText: "Skin"),
                 items: skinOptions
-                    .map((skin) => DropdownMenuItem(
-                          value: skin,
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                "assets/skin_$skin.png",
-                                width: 32,
-                                height: 32,
-                                fit: BoxFit.cover,
-                              ),
-                              const SizedBox(width: 12),
-                              Text("Skin $skin"),
-                            ],
-                          ),
-                        ))
+                    .map(
+                      (skin) => DropdownMenuItem(
+                        value: skin,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              "assets/skin_$skin.png",
+                              width: 32,
+                              height: 32,
+                              fit: BoxFit.cover,
+                            ),
+                            const SizedBox(width: 12),
+                            Text("Skin $skin"),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedSkin = val);

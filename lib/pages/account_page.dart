@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/pages/login_page.dart';
 import 'package:money_manager_frontend/pages/profile_page.dart';
 import 'package:money_manager_frontend/services/auth_service.dart';
+import 'package:money_manager_frontend/services/export_service.dart'
+    as ExportService;
+import 'package:money_manager_frontend/services/transaction_service.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 
 class AccountPage extends StatefulWidget {
@@ -114,7 +117,23 @@ class _AccountPageState extends State<AccountPage> {
             icon: Icons.upload_file,
             title: "Export Data",
             iconColor: Colors.pink,
-            onTap: () {},
+            onTap: () async {
+              try {
+                // Lấy danh sách transactions
+                final transactions = await TransactionService.getTransactions();
+
+                // Xuất Excel
+                await ExportService.exportTransactionsToExcel(transactions);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Xuất Excel thành công!")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Lỗi khi xuất Excel: $e")),
+                );
+              }
+            },
           ),
           buildMenuItem(
             icon: Icons.logout,

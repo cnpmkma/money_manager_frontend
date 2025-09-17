@@ -26,15 +26,15 @@ class _AddWalletPageState extends State<AddWalletPage> {
       await WalletService.createWallet(
         _nameController.text,
         double.tryParse(_balanceController.text) ?? 0,
-        skinIndex: _selectedSkin, 
+        skinIndex: _selectedSkin,
       );
-      widget.onWalletAdded(); 
+      widget.onWalletAdded();
       Navigator.pop(context);
     } catch (e) {
       debugPrint("Error adding wallet: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Thêm ví thất bại")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Thêm ví thất bại")));
     } finally {
       setState(() => _loading = false);
     }
@@ -45,10 +45,7 @@ class _AddWalletPageState extends State<AddWalletPage> {
     final skinOptions = List.generate(12, (i) => i + 1);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Thêm ví mới"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Thêm ví mới"), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -58,16 +55,14 @@ class _AddWalletPageState extends State<AddWalletPage> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Tên ví"),
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Nhập tên ví" : null,
+                validator: (v) => v == null || v.isEmpty ? "Nhập tên ví" : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _balanceController,
                 decoration: const InputDecoration(labelText: "Số dư ban đầu"),
                 keyboardType: TextInputType.number,
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Nhập số dư" : null,
+                validator: (v) => v == null || v.isEmpty ? "Nhập số dư" : null,
               ),
               const SizedBox(height: 16),
 
@@ -75,21 +70,23 @@ class _AddWalletPageState extends State<AddWalletPage> {
                 value: _selectedSkin,
                 decoration: const InputDecoration(labelText: "Skin"),
                 items: skinOptions
-                    .map((skin) => DropdownMenuItem(
-                          value: skin,
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                "assets/skin_$skin.png",
-                                width: 32,
-                                height: 32,
-                                fit: BoxFit.cover,
-                              ),
-                              const SizedBox(width: 12),
-                              Text("Skin $skin"),
-                            ],
-                          ),
-                        ))
+                    .map(
+                      (skin) => DropdownMenuItem(
+                        value: skin,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              "assets/skin_$skin.png",
+                              width: 32,
+                              height: 32,
+                              fit: BoxFit.cover,
+                            ),
+                            const SizedBox(width: 12),
+                            Text("Skin $skin"),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedSkin = val);
