@@ -1,4 +1,3 @@
-// add_wallet_page.dart
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 
@@ -16,8 +15,9 @@ class _AddWalletPageState extends State<AddWalletPage> {
   final TextEditingController _balanceController = TextEditingController();
 
   bool _loading = false;
+  int _selectedSkin = 1; // default skin
 
-  void _submit() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
@@ -26,14 +26,15 @@ class _AddWalletPageState extends State<AddWalletPage> {
       await WalletService.createWallet(
         _nameController.text,
         double.tryParse(_balanceController.text) ?? 0,
+        skinIndex: _selectedSkin, 
       );
-      widget.onWalletAdded(); // callback để refresh danh sách ví
+      widget.onWalletAdded(); 
       Navigator.pop(context);
     } catch (e) {
-      print("Error adding wallet: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Thêm ví thất bại")));
+      debugPrint("Error adding wallet: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Thêm ví thất bại")),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -41,51 +42,80 @@ class _AddWalletPageState extends State<AddWalletPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16,
-        right: 16,
-        top: 16,
+    final skinOptions = List.generate(12, (i) => i + 1);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Thêm ví mới"),
+        centerTitle: true,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "Thêm ví mới",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: "Tên ví"),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? "Nhập tên ví" : null,
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _balanceController,
-                  decoration: InputDecoration(labelText: "Số dư ban đầu"),
-                  keyboardType: TextInputType.number,
-                  validator: (v) =>
-                      v == null || v.isEmpty ? "Nhập số dư" : null,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: "Tên ví"),
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Nhập tên ví" : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _balanceController,
+                decoration: const InputDecoration(labelText: "Số dư ban đầu"),
+                keyboardType: TextInputType.number,
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Nhập số dư" : null,
+              ),
+              const SizedBox(height: 16),
+
+              DropdownButtonFormField<int>(
+                value: _selectedSkin,
+                decoration: const InputDecoration(labelText: "Skin"),
+                items: skinOptions
+                    .map((skin) => DropdownMenuItem(
+                          value: skin,
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/skin_$skin.png",
+                                width: 32,
+                                height: 32,
+                                fit: BoxFit.cover,
+                              ),
+                              const SizedBox(width: 12),
+                              Text("Skin $skin"),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedSkin = val);
+                },
+              ),
+
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: _loading ? null : _submit,
                   child: _loading
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text("Thêm"),
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text("Thêm ví"),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-        ],
+        ),
       ),
     );
   }

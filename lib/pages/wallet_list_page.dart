@@ -1,13 +1,13 @@
-// wallet_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 import 'package:intl/intl.dart';
+import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 import 'add_wallet_page.dart';
 import 'edit_wallet_page.dart';
+import '../theme.dart';
 
 class WalletListPage extends StatefulWidget {
-  final VoidCallback onBack;
-  const WalletListPage({super.key, required this.onBack});
+  const WalletListPage({super.key});
 
   @override
   State<WalletListPage> createState() => _WalletListPageState();
@@ -41,12 +41,15 @@ class _WalletListPageState extends State<WalletListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text("Tất cả ví"),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: widget.onBack, // <-- dùng widget.onBack
+          onPressed: () {
+            Navigator.pop(context, true); // pop + trả flag
+          },
         ),
       ),
       body: _loading
@@ -60,15 +63,16 @@ class _WalletListPageState extends State<WalletListPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (context) => AddWalletPage(
-                            onWalletAdded: () {
-                              _fetchWallets(); // reload danh sách ví
-                            },
-                          ),
-                        );
+                        Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => AddWalletPage(
+      onWalletAdded: () {
+        _fetchWallets(); // reload danh sách ví
+      },
+    ),
+  ),
+);
                       },
                       icon: const Icon(Icons.add),
                       label: const Text("Thêm ví mới"),
@@ -83,17 +87,16 @@ class _WalletListPageState extends State<WalletListPage> {
                 return Column(
                   children: [
                     ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.account_balance_wallet,
-                          color: Colors.brown,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image(
+                          image: AssetImage("assets/skin_${wallet['skin_index'] ?? 1}.png"),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
                         ),
                       ),
+                    
                       title: Text(wallet['wallet_name']),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -105,21 +108,20 @@ class _WalletListPageState extends State<WalletListPage> {
                           PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == "edit") {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  builder: (context) => EditWalletPage(
-                                    walletId: wallet['id'],
-                                    initialName: wallet['wallet_name'],
-                                    initialBalance:
-                                        double.tryParse(
-                                          wallet['balance'].toString(),
-                                        ) ??
-                                        0,
-                                    onWalletUpdated:
-                                        _fetchWallets, // reload lại danh sách
-                                  ),
-                                );
+                                Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EditWalletPage(
+      walletId: wallet['id'],
+      initialName: wallet['wallet_name'],
+      initialSkin: wallet['skin_index'] ?? 1, 
+      onWalletUpdated: () {
+        _fetchWallets();
+      },
+    ),
+  ),
+);
+
                               } else if (value == "delete") {
                                 showDialog(
                                   context: context,
@@ -154,7 +156,12 @@ class _WalletListPageState extends State<WalletListPage> {
                                                 const SnackBar(
                                                   content: Text(
                                                     "Xóa ví thành công",
+                                                    
                                                   ),
+                                                  backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.all(16),
+                                                  
                                                 ),
                                               );
                                             } catch (e) {
@@ -166,6 +173,9 @@ class _WalletListPageState extends State<WalletListPage> {
                                                   content: Text(
                                                     "Lỗi khi xóa ví: $e",
                                                   ),
+                                                  backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
                                                 ),
                                               );
                                             }

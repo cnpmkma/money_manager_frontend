@@ -36,7 +36,9 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? "Cập nhật thành công" : "Cập nhật thất bại")),
+      SnackBar(
+        content: Text(success ? "Cập nhật thành công" : "Cập nhật thất bại"),
+      ),
     );
 
     if (success) loadUser(); // reload dữ liệu sau khi update
@@ -54,10 +56,19 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             CircleAvatar(radius: 50, backgroundImage: AssetImage(avatar)),
             const SizedBox(height: 20),
-            TextField(controller: _usernameController, decoration: const InputDecoration(labelText: "Tên hiển thị")),
-            TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email")),
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: "Tên hiển thị"),
+            ),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: "Email"),
+            ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: updateProfile, child: const Text("Cập nhật")),
+            ElevatedButton(
+              onPressed: updateProfile,
+              child: const Text("Cập nhật"),
+            ),
           ],
         ),
       ),

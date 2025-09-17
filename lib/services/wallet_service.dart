@@ -27,35 +27,44 @@ class WalletService {
   }
 
   static Future<Map<String, dynamic>> createWallet(
-    String name,
-    double balance,
-  ) async {
-    final token = await AuthService.getToken();
+  String name,
+  double balance,
+  {int skinIndex = 1}
+) async {
+  final token = await AuthService.getToken();
 
-    final res = await _dio.post(
-      "/wallets",
-      data: {"wallet_name": name, "balance": balance},
-      options: Options(headers: {"Authorization": "Bearer $token"}),
-    );
+  final res = await _dio.post(
+    "/wallets",
+    data: {
+      "wallet_name": name,
+      "balance": balance,
+      "skin_index": skinIndex, // gửi skin_index lên backend
+    },
+    options: Options(headers: {"Authorization": "Bearer $token"}),
+  );
 
-    return res.data as Map<String, dynamic>;
-  }
+  return res.data as Map<String, dynamic>;
+}
 
   // Cập nhật ví
-  static Future<Map<String, dynamic>> updateWallet(
-    int id,
-    String name,
-    double balance,
-  ) async {
+  static Future<void> updateWallet(
+    int walletId,
+    String name, {
+    int? skinIndex,
+  }) async {
     final token = await AuthService.getToken();
 
-    final res = await _dio.patch(
-      "/wallets/$id",
-      data: {"wallet_name": name, "balance": balance},
+    // Map kiểu rõ ràng để tránh lỗi int -> String
+    final Map<String, dynamic> data = {"wallet_name": name};
+    if (skinIndex != null) {
+      data["skin_index"] = skinIndex;
+    }
+
+    await _dio.patch(
+      "/wallets/$walletId",
+      data: data,
       options: Options(headers: {"Authorization": "Bearer $token"}),
     );
-
-    return res.data as Map<String, dynamic>;
   }
 
   // Xóa ví

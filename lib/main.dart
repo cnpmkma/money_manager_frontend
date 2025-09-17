@@ -7,9 +7,7 @@ import 'package:money_manager_frontend/theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(
-const MyApp(),
-    );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

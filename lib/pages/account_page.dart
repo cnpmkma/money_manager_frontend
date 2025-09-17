@@ -27,7 +27,12 @@ class _AccountPageState extends State<AccountPage> {
     });
   }
 
-  Widget buildMenuItem({required IconData icon, required String title, required VoidCallback onTap, Color? iconColor}) {
+  Widget buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Material(
@@ -37,7 +42,8 @@ class _AccountPageState extends State<AccountPage> {
         child: ListTile(
           leading: Container(
             decoration: BoxDecoration(
-              color: iconColor?.withOpacity(0.1) ?? Colors.blue.withOpacity(0.1),
+              color:
+                  iconColor?.withOpacity(0.1) ?? Colors.blue.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(10),
@@ -73,7 +79,13 @@ class _AccountPageState extends State<AccountPage> {
               children: [
                 CircleAvatar(radius: 40, backgroundImage: AssetImage(avatar)),
                 const SizedBox(height: 10),
-                Text(username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  username,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Text(email, style: const TextStyle(color: Colors.grey)),
               ],
             ),
@@ -86,8 +98,10 @@ class _AccountPageState extends State<AccountPage> {
             title: "Account",
             iconColor: Colors.purple,
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))
-                  .then((_) => loadUser());
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
+              ).then((_) => loadUser());
             },
           ),
           buildMenuItem(

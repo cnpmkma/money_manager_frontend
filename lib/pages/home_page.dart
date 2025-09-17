@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:money_manager_frontend/pages/wallet_list_page.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 
@@ -85,6 +86,7 @@ class _HomeState extends State<Home> {
               showBalance: _showBalance,
               toggleBalance: () => setState(() => _showBalance = !_showBalance),
               onViewAll: widget.onViewAllWallets,
+              refreshWallets: _fetchWallets
             ),
             const SizedBox(height: 20),
             const TextSection(
@@ -129,6 +131,7 @@ class WalletCard extends StatelessWidget {
   final bool showBalance;
   final VoidCallback? toggleBalance;
   final VoidCallback? onViewAll;
+  final Future<void> Function()? refreshWallets;
 
   const WalletCard({
     super.key,
@@ -137,6 +140,7 @@ class WalletCard extends StatelessWidget {
     required this.showBalance,
     this.toggleBalance,
     this.onViewAll,
+    this.refreshWallets
   });
 
   @override
@@ -164,7 +168,16 @@ class WalletCard extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 TextButton(
-                  onPressed: onViewAll,
+                  onPressed: () async {
+  final changed = await Navigator.push(
+  context,
+  MaterialPageRoute(builder: (context) => const WalletListPage()),
+);
+
+if (changed == true) {
+  await refreshWallets!();
+}
+},
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.deepPurple,
                   ),
@@ -178,15 +191,13 @@ class WalletCard extends StatelessWidget {
                 return Column(
                   children: [
                     ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Color(0xFF7F55B1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.account_balance_wallet,
-                          color: Colors.white,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image(
+                          image: AssetImage("assets/skin_${wallet['skin_index'] ?? 1}.png"),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       title: Text(wallet['wallet_name']),

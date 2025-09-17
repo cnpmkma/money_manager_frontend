@@ -31,11 +31,11 @@ class _MainLayoutState extends State<MainLayout> {
     _pageController = PageController(initialPage: 0);
 
     _pages = {
-      MainPage.home: Home(onViewAllWallets: () => _goTo(MainPage.walletList)),
+      MainPage.home: Home(),
       MainPage.transactions: TransactionPage(key: _transactionKey),
       MainPage.budget: const BudgetPage(),
       MainPage.account: const AccountPage(),
-      MainPage.walletList: WalletListPage(onBack: () => _goTo(MainPage.home)),
+      MainPage.walletList: WalletListPage(),
     };
   }
 

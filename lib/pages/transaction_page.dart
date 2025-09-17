@@ -90,15 +90,14 @@ class TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> openAddTransaction(BuildContext context) async {
-  final result = await Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const AddTransactionPage()),
-  );
-  if (result == true) {
-    _loadTransactions(); // reload khi thêm thành công
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+    );
+    if (result == true) {
+      _loadTransactions(); // reload khi thêm thành công
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +112,9 @@ class TransactionPageState extends State<TransactionPage> {
     // nhóm theo ngày
     final grouped = <String, List<dynamic>>{};
     for (var tx in filteredTransactions) {
-      final dateStr =
-          DateFormat("dd/MM/yyyy").format(DateTime.parse(tx['transaction_date']));
+      final dateStr = DateFormat(
+        "dd/MM/yyyy",
+      ).format(DateTime.parse(tx['transaction_date']));
       grouped.putIfAbsent(dateStr, () => []).add(tx);
     }
 
@@ -180,23 +180,25 @@ class TransactionPageState extends State<TransactionPage> {
                     ),
                   ),
                 ),
-                ...entry.value.map((tx) => TransactionItem(
-                      title: tx['category']['category_name'],
-                      note: tx['note'],
-                      amount: double.parse(tx['amount']),
-                      isIncome: tx['category']['type'] == "thu",
-                      formatter: _currencyFormatter,
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AddTransactionPage(transaction: tx),
-                          ),
-                        );
-                        if (result == true) _loadTransactions();
-                      },
-                      onDelete: () => _deleteTransaction(tx['id']),
-                    )),
+                ...entry.value.map(
+                  (tx) => TransactionItem(
+                    title: tx['category']['category_name'],
+                    note: tx['note'],
+                    amount: double.parse(tx['amount']),
+                    isIncome: tx['category']['type'] == "thu",
+                    formatter: _currencyFormatter,
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddTransactionPage(transaction: tx),
+                        ),
+                      );
+                      if (result == true) _loadTransactions();
+                    },
+                    onDelete: () => _deleteTransaction(tx['id']),
+                  ),
+                ),
               ],
           ],
         ),
@@ -233,7 +235,7 @@ class TransactionFilterRow extends StatelessWidget {
         Flexible(
           flex: 2,
           child: DropdownButtonFormField<String>(
-            value: selectedType,
+            initialValue: selectedType,
             items: const [
               DropdownMenuItem(value: "all", child: Text("Tất cả")),
               DropdownMenuItem(value: "chi", child: Text("Chi")),
@@ -246,16 +248,18 @@ class TransactionFilterRow extends StatelessWidget {
         Flexible(
           flex: 2,
           child: DropdownButtonFormField<int?>(
-            value: selectedWalletId,
+            initialValue: selectedWalletId,
             items: [
               const DropdownMenuItem<int?>(
                 value: null,
                 child: Text("Tất cả ví"),
               ),
-              ...wallets.map((w) => DropdownMenuItem<int?>(
-                    value: w['id'] as int,
-                    child: Text(w['wallet_name']),
-                  )),
+              ...wallets.map(
+                (w) => DropdownMenuItem<int?>(
+                  value: w['id'] as int,
+                  child: Text(w['wallet_name']),
+                ),
+              ),
             ],
             onChanged: onWalletChanged,
           ),
@@ -264,7 +268,7 @@ class TransactionFilterRow extends StatelessWidget {
         Flexible(
           flex: 2,
           child: DropdownButtonFormField<String>(
-            value: sortOrder,
+            initialValue: sortOrder,
             items: const [
               DropdownMenuItem(value: "desc", child: Text("Mới nhất")),
               DropdownMenuItem(value: "asc", child: Text("Cũ nhất")),
@@ -318,21 +322,31 @@ class SummaryCard extends StatelessWidget {
           children: [
             Column(
               children: [
-                const Text("Thu nhập", style: TextStyle(color: Colors.green, fontSize: 20)),
+                const Text(
+                  "Thu nhập",
+                  style: TextStyle(color: Colors.green, fontSize: 20),
+                ),
                 Text(
                   "+${formatter.format(totalIncome)}",
                   style: const TextStyle(
-                      color: Colors.green, fontWeight: FontWeight.bold),
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
             Column(
               children: [
-                const Text("Chi tiêu", style: TextStyle(color: Colors.red, fontSize: 20)),
+                const Text(
+                  "Chi tiêu",
+                  style: TextStyle(color: Colors.red, fontSize: 20),
+                ),
                 Text(
                   "-${formatter.format(totalExpense)}",
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.bold),
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -375,8 +389,21 @@ class TransactionItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text(note ?? '', style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14, color: Colors.grey))
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                note ?? '',
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
             ],
           ),
         ),

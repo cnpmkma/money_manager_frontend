@@ -4,14 +4,14 @@ import 'package:money_manager_frontend/services/wallet_service.dart';
 class EditWalletPage extends StatefulWidget {
   final int walletId;
   final String initialName;
-  final double initialBalance;
+  final int initialSkin;
   final VoidCallback onWalletUpdated;
 
   const EditWalletPage({
     super.key,
     required this.walletId,
     required this.initialName,
-    required this.initialBalance,
+    required this.initialSkin,
     required this.onWalletUpdated,
   });
 
@@ -22,16 +22,14 @@ class EditWalletPage extends StatefulWidget {
 class _EditWalletPageState extends State<EditWalletPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _balanceController;
   bool _loading = false;
+  late int _selectedSkin;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName);
-    _balanceController = TextEditingController(
-      text: widget.initialBalance.toString(),
-    );
+    _selectedSkin = widget.initialSkin;
   }
 
   Future<void> _updateWallet() async {
@@ -43,14 +41,14 @@ class _EditWalletPageState extends State<EditWalletPage> {
       await WalletService.updateWallet(
         widget.walletId,
         _nameController.text,
-        double.tryParse(_balanceController.text) ?? 0,
+        skinIndex: _selectedSkin, // chỉ cập nhật tên + skin
       );
       widget.onWalletUpdated();
-      Navigator.pop(context); // đóng modal
+      Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi khi cập nhật ví: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi khi cập nhật ví: $e")),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -58,39 +56,68 @@ class _EditWalletPageState extends State<EditWalletPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: MediaQuery.of(context).viewInsets, // tránh bàn phím che
-      child: Padding(
+    final skinOptions = List.generate(12, (i) => i + 1);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Sửa ví"),
+        centerTitle: true,
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Sửa ví", style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Tên ví"),
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Nhập tên ví" : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Nhập tên ví" : null,
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _balanceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Số dư"),
-                validator: (value) =>
-                    value == null || double.tryParse(value) == null
-                    ? "Nhập số dư hợp lệ"
-                    : null,
+              const SizedBox(height: 16),
+
+              DropdownButtonFormField<int>(
+                value: _selectedSkin,
+                decoration: const InputDecoration(labelText: "Skin"),
+                items: skinOptions
+                    .map((skin) => DropdownMenuItem(
+                          value: skin,
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/skin_$skin.png",
+                                width: 32,
+                                height: 32,
+                                fit: BoxFit.cover,
+                              ),
+                              const SizedBox(width: 12),
+                              Text("Skin $skin"),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedSkin = val);
+                },
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _loading ? null : _updateWallet,
-                child: _loading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Lưu thay đổi"),
+
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _loading ? null : _updateWallet,
+                  child: _loading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text("Lưu thay đổi"),
+                ),
               ),
             ],
           ),
