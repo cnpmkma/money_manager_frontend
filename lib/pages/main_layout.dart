@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/pages/account_page.dart';
-import 'package:money_manager_frontend/pages/add_transaction_page.dart';
+import 'package:money_manager_frontend/pages/transaction_add_page.dart';
 import 'package:money_manager_frontend/pages/budget_page.dart';
 import 'package:money_manager_frontend/pages/transaction_page.dart';
-import 'package:money_manager_frontend/pages/wallet_list_page.dart';
+import 'package:money_manager_frontend/pages/wallet_page.dart';
 import 'home_page.dart';
 
 enum MainPage { home, transactions, budget, account, walletList }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 import 'package:intl/intl.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
-import 'add_wallet_page.dart';
-import 'edit_wallet_page.dart';
+import 'wallet_add_page.dart';
+import 'wallet_edit_page.dart';
 
 class WalletListPage extends StatefulWidget {
   const WalletListPage({super.key});

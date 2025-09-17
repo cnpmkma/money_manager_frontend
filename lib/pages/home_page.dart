@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import 'package:money_manager_frontend/pages/wallet_list_page.dart';
+import 'package:money_manager_frontend/pages/wallet_page.dart';
 import 'package:money_manager_frontend/services/wallet_service.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../services/transaction_service.dart';
 import '../services/wallet_service.dart';
 import '../widgets/gradient_scaffold.dart';
-import 'add_transaction_page.dart';
+import 'transaction_add_page.dart';
 
 class TransactionPage extends StatefulWidget {
   final Future<void> Function(BuildContext context)? onAdd;
