@@ -19,17 +19,20 @@ class _MainLayoutState extends State<MainLayout> {
   MainPage _currentPage = MainPage.home;
   late final PageController _pageController;
 
+  // key để gọi hàm trong TransactionPage
+  final GlobalKey<TransactionPageState> _transactionKey =
+      GlobalKey<TransactionPageState>();
+
   late final Map<MainPage, Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-
     _pageController = PageController(initialPage: 0);
 
     _pages = {
       MainPage.home: Home(onViewAllWallets: () => _goTo(MainPage.walletList)),
-      MainPage.transactions: const TransactionPage(),
+      MainPage.transactions: TransactionPage(key: _transactionKey),
       MainPage.budget: const BudgetPage(),
       MainPage.account: const AccountPage(),
       MainPage.walletList: WalletListPage(onBack: () => _goTo(MainPage.home)),
@@ -38,17 +41,19 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goTo(MainPage page) {
     setState(() => _currentPage = page);
-
     if (page != MainPage.walletList && _pageController.hasClients) {
       _pageController.jumpToPage(_mainPageIndex(page));
     }
   }
 
-  void _openAddTransaction() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => const AddTransactionPage(),
+  Future<void> _openAddTransaction() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AddTransactionPage()),
     );
+    if (result == true) {
+      _transactionKey.currentState?.reload();
+    }
   }
 
   int _mainPageIndex(MainPage page) {
@@ -117,7 +122,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        backgroundColor: Color(0xFFF81879),
+        backgroundColor: const Color(0xFFF81879),
         onPressed: _openAddTransaction,
         child: const Icon(Icons.add, size: 32, color: Colors.white),
       ),
@@ -128,7 +133,6 @@ class _MainLayoutState extends State<MainLayout> {
           if (index == 2) {
             _openAddTransaction(); // nút giữa
           } else {
-            // BottomNav index → MainPage
             final page = [
               MainPage.home,
               MainPage.transactions,

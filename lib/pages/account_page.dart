@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/pages/login_page.dart';
+import 'package:money_manager_frontend/pages/profile_page.dart';
 import 'package:money_manager_frontend/services/auth_service.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
 
@@ -11,86 +12,102 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  Map<String, dynamic> user = {};
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() async {
+    final data = await AuthService.getCurrentUser();
+    setState(() {
+      user = data;
+    });
+  }
+
+  Widget buildMenuItem({required IconData icon, required String title, required VoidCallback onTap, Color? iconColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Material(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        elevation: 2,
+        child: ListTile(
+          leading: Container(
+            decoration: BoxDecoration(
+              color: iconColor?.withOpacity(0.1) ?? Colors.blue.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            padding: const EdgeInsets.all(10),
+            child: Icon(icon, color: iconColor ?? Colors.blue),
+          ),
+          title: Text(title),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: onTap,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final username = user['username'] ?? '';
+    final email = user['email'] ?? '';
+    final avatar = user['avatar'] ?? 'assets/avatar.png';
+
     return GradientScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black,
         title: const Text("Tài khoản"),
         centerTitle: true,
+        elevation: 0,
       ),
       body: ListView(
         children: [
           const SizedBox(height: 20),
-
-          // Thông tin user
           Center(
             child: Column(
-              children: const [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage(
-                    "assets/avatar.png",
-                  ), // TODO: đổi sang avatar user
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "Nguyễn Văn A",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "nguyenvana@example.com",
-                  style: TextStyle(color: Colors.grey),
-                ),
+              children: [
+                CircleAvatar(radius: 40, backgroundImage: AssetImage(avatar)),
+                const SizedBox(height: 10),
+                Text(username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(email, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
-
           const SizedBox(height: 30),
-          const Divider(),
 
-          // Các tùy chọn
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text("Hồ sơ cá nhân"),
-            trailing: const Icon(Icons.chevron_right),
+          // Menu items
+          buildMenuItem(
+            icon: Icons.person,
+            title: "Account",
+            iconColor: Colors.purple,
             onTap: () {
-              // TODO: mở trang profile
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))
+                  .then((_) => loadUser());
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: const Text("Bảo mật & Đăng nhập"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: mở trang bảo mật
-            },
+          buildMenuItem(
+            icon: Icons.settings,
+            title: "Settings",
+            iconColor: Colors.indigo,
+            onTap: () {},
           ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text("Cài đặt thông báo"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: mở trang thông báo
-            },
+          buildMenuItem(
+            icon: Icons.upload_file,
+            title: "Export Data",
+            iconColor: Colors.pink,
+            onTap: () {},
           ),
-          ListTile(
-            leading: const Icon(Icons.color_lens),
-            title: const Text("Chủ đề"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: đổi theme dark/light
-            },
-          ),
-          const Divider(),
-
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text("Đăng xuất", style: TextStyle(color: Colors.red)),
+          buildMenuItem(
+            icon: Icons.logout,
+            title: "Logout",
+            iconColor: Colors.red,
             onTap: () async {
               await AuthService.logout();
-
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const Login()),

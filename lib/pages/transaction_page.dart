@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
-import '../models/transaction.dart';
-import '../providers/transaction_provider.dart';
+import '../services/transaction_service.dart';
 import '../services/wallet_service.dart';
 import '../widgets/gradient_scaffold.dart';
-import 'transaction_detail_page.dart';
+import 'add_transaction_page.dart';
 
 class TransactionPage extends StatefulWidget {
-  const TransactionPage({super.key});
+  final Future<void> Function(BuildContext context)? onAdd;
+
+  const TransactionPage({super.key, this.onAdd});
 
   @override
-  State<TransactionPage> createState() => _TransactionPageState();
+  State<TransactionPage> createState() => TransactionPageState();
 }
 
-class _TransactionPageState extends State<TransactionPage> {
+class TransactionPageState extends State<TransactionPage> {
   final _currencyFormatter = NumberFormat.currency(
     locale: 'vi_VN',
     symbol: '₫',
@@ -24,16 +24,16 @@ class _TransactionPageState extends State<TransactionPage> {
 
   List<dynamic> _wallets = [];
   int? _selectedWalletId;
-  String _filter = "all"; // all, income, expense
+  String _selectedType = "all"; // "all", "chi", "thu"
+  String _sortOrder = "desc"; // "asc", "desc"
+  List<dynamic> _transactions = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _fetchWallets();
-    // fetch transactions lần đầu
-    Future.microtask(() {
-      context.read<TransactionProvider>().loadTransactions();
-    });
+    _loadTransactions();
   }
 
   Future<void> _fetchWallets() async {
@@ -45,77 +45,122 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
+  Future<void> _loadTransactions() async {
+    setState(() => _isLoading = true);
+    try {
+      final transactions = await TransactionService.getTransactions(
+        walletId: _selectedWalletId,
+      );
+      setState(() {
+        _transactions = transactions;
+        _sortTransactions();
+      });
+    } catch (e) {
+      debugPrint("Error fetching transactions: $e");
+      setState(() => _transactions = []);
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _sortTransactions() {
+    _transactions.sort((a, b) {
+      final dateA = DateTime.parse(a['transaction_date']);
+      final dateB = DateTime.parse(b['transaction_date']);
+      return _sortOrder == "desc"
+          ? dateB.compareTo(dateA)
+          : dateA.compareTo(dateB);
+    });
+  }
+
+  Future<void> _deleteTransaction(int id) async {
+    setState(() => _isLoading = true);
+    try {
+      await TransactionService.deleteTransaction(id);
+      await _loadTransactions();
+    } catch (e) {
+      debugPrint("Error deleting transaction: $e");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void reload() {
+    _loadTransactions();
+  }
+
+  Future<void> openAddTransaction(BuildContext context) async {
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+  );
+  if (result == true) {
+    _loadTransactions(); // reload khi thêm thành công
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<TransactionProvider>();
-    final transactions = provider.transactions;
-
     // lọc theo loại
-    final filtered = transactions.where((tx) {
-      if (_filter == "all") return true;
-      return _filter == "income"
-          ? tx.categoryType == "thu"
-          : tx.categoryType == "chi";
+    final filteredTransactions = _transactions.where((tx) {
+      if (_selectedType == "all") return true;
+      return _selectedType == "thu"
+          ? tx['category']['type'] == "thu"
+          : tx['category']['type'] == "chi";
     }).toList();
 
     // nhóm theo ngày
-    final grouped = <String, List<Transaction>>{};
-    for (var tx in filtered) {
-      final dateStr = DateFormat("dd/MM/yyyy").format(tx.transactionDate);
+    final grouped = <String, List<dynamic>>{};
+    for (var tx in filteredTransactions) {
+      final dateStr =
+          DateFormat("dd/MM/yyyy").format(DateTime.parse(tx['transaction_date']));
       grouped.putIfAbsent(dateStr, () => []).add(tx);
     }
-
-    // tính tổng
-    final totalIncome = transactions
-        .where((tx) => tx.categoryType == "thu")
-        .fold<double>(0, (sum, tx) => sum + tx.amount);
-    final totalExpense = transactions
-        .where((tx) => tx.categoryType == "chi")
-        .fold<double>(0, (sum, tx) => sum + tx.amount);
 
     return GradientScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black,
         title: const Text("Sổ giao dịch"),
         centerTitle: true,
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list),
-            onSelected: (value) => setState(() => _filter = value),
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: "all", child: Text("Tất cả")),
-              PopupMenuItem(value: "income", child: Text("Thu nhập")),
-              PopupMenuItem(value: "expense", child: Text("Chi tiêu")),
-            ],
-          ),
-        ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => context.read<TransactionProvider>().loadTransactions(
-          walletId: _selectedWalletId,
-        ),
+        onRefresh: _loadTransactions,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            SummaryCard(
-              totalIncome: totalIncome,
-              totalExpense: totalExpense,
-              formatter: _currencyFormatter,
+            // Filter Row
+            TransactionFilterRow(
+              selectedType: _selectedType,
               selectedWalletId: _selectedWalletId,
+              sortOrder: _sortOrder,
               wallets: _wallets,
-              onWalletChanged: (val) {
-                setState(() {
-                  _selectedWalletId = val;
-                });
-                context.read<TransactionProvider>().loadTransactions(
-                  walletId: val,
-                );
+              onTypeChanged: (val) {
+                if (val != null) setState(() => _selectedType = val);
               },
-              isLoading: provider.isLoading,
+              onWalletChanged: (val) {
+                setState(() => _selectedWalletId = val);
+                _loadTransactions();
+              },
+              onSortOrderChanged: (val) {
+                setState(() {
+                  _sortOrder = val;
+                  _sortTransactions();
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            // Summary Card
+            SummaryCard(
+              transactions: _transactions,
+              selectedType: _selectedType,
+              formatter: _currencyFormatter,
             ),
             const SizedBox(height: 20),
-            if (grouped.isEmpty)
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (grouped.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(20),
@@ -128,33 +173,30 @@ class _TransactionPageState extends State<TransactionPage> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     entry.key,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: Colors.grey[800],
                     ),
                   ),
                 ),
-                ...entry.value.map(
-                  (tx) => TransactionItem(
-                    title: tx.categoryName,
-                    amount: tx.amount,
-                    isIncome: tx.categoryType == "thu",
-                    icon: tx.categoryType == "thu"
-                        ? Icons.arrow_downward
-                        : Icons.arrow_upward,
-                    formatter: _currencyFormatter,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              TransactionDetailPage(transaction: tx),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                ...entry.value.map((tx) => TransactionItem(
+                      title: tx['category']['category_name'],
+                      note: tx['note'],
+                      amount: double.parse(tx['amount']),
+                      isIncome: tx['category']['type'] == "thu",
+                      formatter: _currencyFormatter,
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddTransactionPage(transaction: tx),
+                          ),
+                        );
+                        if (result == true) _loadTransactions();
+                      },
+                      onDelete: () => _deleteTransaction(tx['id']),
+                    )),
               ],
           ],
         ),
@@ -163,101 +205,134 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 }
 
-class SummaryCard extends StatelessWidget {
-  final double totalIncome;
-  final double totalExpense;
-  final NumberFormat formatter;
+// Filter Row
+class TransactionFilterRow extends StatelessWidget {
+  final String selectedType;
   final int? selectedWalletId;
+  final String sortOrder;
   final List<dynamic> wallets;
+  final ValueChanged<String?> onTypeChanged;
   final ValueChanged<int?> onWalletChanged;
-  final bool isLoading;
+  final ValueChanged<String> onSortOrderChanged;
 
-  const SummaryCard({
+  const TransactionFilterRow({
     super.key,
-    required this.totalIncome,
-    required this.totalExpense,
-    required this.formatter,
+    required this.selectedType,
     required this.selectedWalletId,
+    required this.sortOrder,
     required this.wallets,
+    required this.onTypeChanged,
     required this.onWalletChanged,
-    required this.isLoading,
+    required this.onSortOrderChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Flexible(
+          flex: 2,
+          child: DropdownButtonFormField<String>(
+            value: selectedType,
+            items: const [
+              DropdownMenuItem(value: "all", child: Text("Tất cả")),
+              DropdownMenuItem(value: "chi", child: Text("Chi")),
+              DropdownMenuItem(value: "thu", child: Text("Thu")),
+            ],
+            onChanged: onTypeChanged,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          flex: 2,
+          child: DropdownButtonFormField<int?>(
+            value: selectedWalletId,
+            items: [
+              const DropdownMenuItem<int?>(
+                value: null,
+                child: Text("Tất cả ví"),
+              ),
+              ...wallets.map((w) => DropdownMenuItem<int?>(
+                    value: w['id'] as int,
+                    child: Text(w['wallet_name']),
+                  )),
+            ],
+            onChanged: onWalletChanged,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          flex: 2,
+          child: DropdownButtonFormField<String>(
+            value: sortOrder,
+            items: const [
+              DropdownMenuItem(value: "desc", child: Text("Mới nhất")),
+              DropdownMenuItem(value: "asc", child: Text("Cũ nhất")),
+            ],
+            onChanged: (val) {
+              if (val != null) onSortOrderChanged(val);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Summary Card
+class SummaryCard extends StatelessWidget {
+  final List<dynamic> transactions;
+  final String selectedType;
+  final NumberFormat formatter;
+
+  const SummaryCard({
+    super.key,
+    required this.transactions,
+    required this.selectedType,
+    required this.formatter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = transactions.where((tx) {
+      if (selectedType == "all") return true;
+      return selectedType == "thu"
+          ? tx['category']['type'] == "thu"
+          : tx['category']['type'] == "chi";
+    }).toList();
+
+    final totalIncome = filtered
+        .where((tx) => tx['category']['type'] == "thu")
+        .fold<double>(0, (sum, tx) => sum + double.parse(tx['amount']));
+    final totalExpense = filtered
+        .where((tx) => tx['category']['type'] == "chi")
+        .fold<double>(0, (sum, tx) => sum + double.parse(tx['amount']));
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Column(
               children: [
-                DropdownButton<int?>(
-                  value: selectedWalletId,
-                  items: [
-                    const DropdownMenuItem<int?>(
-                      value: null,
-                      child: Text("Tất cả ví"),
-                    ),
-                    ...wallets.map<DropdownMenuItem<int?>>((wallet) {
-                      return DropdownMenuItem<int?>(
-                        value: wallet['id'] as int,
-                        child: Text(wallet['wallet_name']),
-                      );
-                    }).toList(),
-                  ],
-                  onChanged: onWalletChanged,
+                const Text("Thu nhập", style: TextStyle(color: Colors.green, fontSize: 20)),
+                Text(
+                  "+${formatter.format(totalIncome)}",
+                  style: const TextStyle(
+                      color: Colors.green, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            Column(
               children: [
-                Column(
-                  children: [
-                    const Text(
-                      "Thu nhập",
-                      style: TextStyle(color: Colors.green),
-                    ),
-                    isLoading
-                        ? const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            "+${formatter.format(totalIncome)}",
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text("Chi tiêu", style: TextStyle(color: Colors.red)),
-                    isLoading
-                        ? const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            "-${formatter.format(totalExpense)}",
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ],
+                const Text("Chi tiêu", style: TextStyle(color: Colors.red, fontSize: 20)),
+                Text(
+                  "-${formatter.format(totalExpense)}",
+                  style: const TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -268,22 +343,25 @@ class SummaryCard extends StatelessWidget {
   }
 }
 
+// Transaction Item
 class TransactionItem extends StatelessWidget {
   final String title;
+  final String? note;
   final double amount;
   final bool isIncome;
-  final IconData icon;
   final NumberFormat formatter;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const TransactionItem({
     super.key,
     required this.title,
+    this.note,
     required this.amount,
     required this.isIncome,
-    required this.icon,
     required this.formatter,
     this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -292,11 +370,16 @@ class TransactionItem extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 2,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isIncome ? Colors.green[100] : Colors.red[100],
-          child: Icon(icon, color: isIncome ? Colors.green : Colors.red),
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(note ?? '', style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14, color: Colors.grey))
+            ],
+          ),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         trailing: Text(
           (isIncome ? "+ " : "- ") + formatter.format(amount),
           style: TextStyle(

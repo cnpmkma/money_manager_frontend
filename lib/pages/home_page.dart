@@ -110,11 +110,13 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      title: Text("Tổng quan"),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       actions: const [
-        Icon(Icons.search, color: Colors.white),
+        Icon(Icons.search, color: Colors.black),
         SizedBox(width: 16),
-        Icon(Icons.notifications_none, color: Colors.white),
+        Icon(Icons.notifications_none, color: Colors.black),
         SizedBox(width: 16),
       ],
     );
@@ -250,8 +252,8 @@ class TextSection extends StatelessWidget {
           ),
           TextButton(
             onPressed: onAction,
-            child: Text(actionText),
             style: TextButton.styleFrom(foregroundColor: Colors.green),
+            child: Text(actionText),
           ),
         ],
       ),

@@ -45,7 +45,7 @@ class _BudgetPageState extends State<BudgetPage> {
     return GradientScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black,
         title: const Text("Ngân sách"),
         centerTitle: true,
       ),

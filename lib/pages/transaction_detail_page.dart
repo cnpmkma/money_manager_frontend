@@ -1,316 +1,190 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../models/transaction.dart';
 import '../services/transaction_service.dart';
-import '../providers/transaction_provider.dart';
-import '../providers/wallet_provider.dart';
-import '../providers/category_provider.dart';
-import '../widgets/gradient_scaffold.dart';
+import '../services/wallet_service.dart';
 
 class TransactionDetailPage extends StatefulWidget {
-  final Transaction transaction;
-  const TransactionDetailPage({super.key, required this.transaction});
+  final Map<String, dynamic>? transaction; // null = thêm mới
+  final VoidCallback? onDelete;
+
+  const TransactionDetailPage({super.key, this.transaction, this.onDelete});
 
   @override
   State<TransactionDetailPage> createState() => _TransactionDetailPageState();
 }
 
 class _TransactionDetailPageState extends State<TransactionDetailPage> {
-  bool _isEditing = false;
-  late TextEditingController _amountController;
-  late TextEditingController _noteController;
-  late int _selectedWalletId;
-  late int _selectedCategoryId;
-  late DateTime _selectedDate;
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _noteController = TextEditingController();
+  int? _selectedWalletId;
+  int? _selectedCategoryId;
+  DateTime _selectedDate = DateTime.now();
+  List<dynamic> _wallets = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(
-      text: widget.transaction.amount.toString(),
-    );
-    _noteController = TextEditingController(
-      text: widget.transaction.note ?? '',
-    );
-    _selectedWalletId = widget.transaction.walletId;
-    _selectedCategoryId = widget.transaction.categoryId;
-    _selectedDate = widget.transaction.transactionDate;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final walletProvider = context.read<WalletProvider>();
-      final categoryProvider = context.read<CategoryProvider>();
-
-      if (walletProvider.wallets.isEmpty) {
-        walletProvider.loadWallets();
-      }
-
-      if (categoryProvider.categories.isEmpty) {
-        categoryProvider.loadCategories();
-      }
-    });
+    _fetchWallets();
+    if (widget.transaction != null) {
+      final tx = widget.transaction!;
+      _amountController.text = (tx['amount'] as num).toString();
+      _noteController.text = tx['note'] ?? '';
+      _selectedWalletId = tx['wallet_id'];
+      _selectedCategoryId = tx['category_id'];
+      _selectedDate = DateTime.parse(tx['transaction_date']);
+    }
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) setState(() => _selectedDate = picked);
+  Future<void> _fetchWallets() async {
+    try {
+      final wallets = await WalletService.getWallets();
+      setState(() => _wallets = wallets);
+    } catch (e) {
+      debugPrint("Error fetching wallets: $e");
+    }
+  }
+
+  Future<void> _saveTransaction() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_selectedWalletId == null || _selectedCategoryId == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Chọn ví và danh mục")));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    final amount = double.tryParse(_amountController.text) ?? 0;
+    final note = _noteController.text;
+
+    try {
+      if (widget.transaction == null) {
+        // Thêm mới
+        await TransactionService.addTransaction(
+          amount: amount,
+          note: note,
+          walletId: _selectedWalletId!,
+          categoryId: _selectedCategoryId!,
+          transactionDate: _selectedDate,
+        );
+      } else {
+        // Cập nhật
+        await TransactionService.updateTransaction(
+          id: widget.transaction!['id'],
+          amount: amount,
+          note: note,
+          walletId: _selectedWalletId!,
+          categoryId: _selectedCategoryId!,
+          transactionDate: _selectedDate,
+        );
+      }
+      Navigator.pop(context, true);
+    } catch (e) {
+      debugPrint("Error saving transaction: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Lỗi khi lưu giao dịch")));
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteTransaction() async {
+    if (widget.transaction == null) return;
+    if (widget.onDelete != null) widget.onDelete!();
+    Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final walletProvider = context.watch<WalletProvider>();
-    final categoryProvider = context.watch<CategoryProvider>();
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'vi_VN',
-      symbol: '₫',
-      decimalDigits: 0,
-    );
-
-    // Loading indicator
-    if (walletProvider.loading ||
-        walletProvider.wallets.isEmpty ||
-        categoryProvider.isLoading ||
-        categoryProvider.categories.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    // Tìm wallet + category
-    final wallet = walletProvider.wallets.firstWhere(
-      (w) => w['id'] == _selectedWalletId,
-      orElse: () => {'wallet_name': 'Không xác định'},
-    );
-
-    final category = categoryProvider.categories.firstWhere(
-      (c) => c['id'] == _selectedCategoryId,
-      orElse: () => {'category_name': 'Không xác định', 'type': 'thu'},
-    );
-
-    return GradientScaffold(
+    return Scaffold(
       appBar: AppBar(
-        title: const Text("Chi tiết giao dịch"),
-        centerTitle: true,
+        title: Text(widget.transaction == null ? "Thêm giao dịch" : "Chi tiết"),
         actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.check : Icons.edit),
-            onPressed: () async {
-              if (_isEditing) {
-                // Save
-                try {
-                  await TransactionService.updateTransaction(
-                    id: widget.transaction.id,
-                    amount: double.parse(_amountController.text),
-                    note: _noteController.text,
-                    walletId: _selectedWalletId,
-                    categoryId: _selectedCategoryId,
-                    transactionDate: _selectedDate,
-                  );
-                  context.read<TransactionProvider>().loadTransactions();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Cập nhật giao dịch thành công"),
-                    ),
-                  );
-                  setState(() => _isEditing = false);
-                } catch (e) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
-                }
-              } else {
-                setState(() => _isEditing = true);
-              }
-            },
-          ),
-          if (!_isEditing)
+          if (widget.transaction != null)
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text("Xác nhận"),
-                    content: const Text("Bạn có chắc muốn xóa giao dịch này?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text("Hủy"),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: const Text("Xóa"),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm != true) return;
-
-                try {
-                  await TransactionService.deleteTransaction(
-                    widget.transaction.id,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Xóa giao dịch thành công")),
-                  );
-                  context.read<TransactionProvider>().loadTransactions();
-                  Navigator.pop(context);
-                } catch (e) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
-                }
-              },
+              onPressed: _deleteTransaction,
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Card số tiền + loại
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: category['type'] == 'thu'
-                    ? Colors.green[50]
-                    : Colors.red[50],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  _isEditing
-                      ? DropdownButtonFormField<int>(
-                          value: _selectedCategoryId,
-                          items: categoryProvider.categories
-                              .map(
-                                (c) => DropdownMenuItem<int>(
-                                  value: c['id'] as int,
-                                  child: Text(c['category_name']),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (val) =>
-                              setState(() => _selectedCategoryId = val!),
-                          decoration: const InputDecoration(
-                            labelText: "Danh mục",
-                          ),
-                        )
-                      : Text(
-                          category['category_name'],
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                  const SizedBox(height: 10),
-                  _isEditing
-                      ? TextField(
-                          controller: _amountController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: "Số tiền",
-                          ),
-                        )
-                      : Text(
-                          "${category['type'] == 'thu' ? '+' : '-'} ${currencyFormatter.format(widget.transaction.amount)}",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: category['type'] == 'thu'
-                                ? Colors.green
-                                : Colors.red,
-                          ),
-                        ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Thông tin khác
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: ListView(
                   children: [
-                    _isEditing
-                        ? DropdownButtonFormField<int>(
-                            value: _selectedWalletId,
-                            items: walletProvider.wallets
-                                .map(
-                                  (w) => DropdownMenuItem<int>(
-                                    value: w['id'] as int,
-                                    child: Text(w['wallet_name']),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (val) =>
-                                setState(() => _selectedWalletId = val!),
-                            decoration: const InputDecoration(labelText: "Ví"),
-                          )
-                        : _infoRow(
-                            Icons.account_balance_wallet,
-                            "Ví",
-                            wallet['wallet_name'],
-                          ),
-                    const Divider(),
-                    _isEditing
-                        ? ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.calendar_today),
-                            title: Text(
-                              DateFormat('dd/MM/yyyy').format(_selectedDate),
-                            ),
-                            trailing: const Icon(Icons.edit_calendar),
-                            onTap: _pickDate,
-                          )
-                        : _infoRow(
-                            Icons.calendar_today,
-                            "Ngày",
-                            DateFormat(
-                              'dd/MM/yyyy',
-                            ).format(widget.transaction.transactionDate),
-                          ),
-                    const Divider(),
-                    _isEditing
-                        ? TextField(
-                            controller: _noteController,
-                            decoration: const InputDecoration(
-                              labelText: "Ghi chú",
-                            ),
-                          )
-                        : _infoRow(
-                            Icons.note,
-                            "Ghi chú",
-                            widget.transaction.note ?? '-',
-                          ),
+                    // Số tiền
+                    TextFormField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: "Số tiền"),
+                      validator: (val) {
+                        if (val == null || val.isEmpty) return "Nhập số tiền";
+                        if (double.tryParse(val) == null) return "Số tiền không hợp lệ";
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Ghi chú
+                    TextFormField(
+                      controller: _noteController,
+                      decoration: const InputDecoration(labelText: "Ghi chú"),
+                    ),
+                    const SizedBox(height: 16),
+                    // Chọn ví
+                    DropdownButtonFormField<int>(
+                      value: _selectedWalletId,
+                      decoration: const InputDecoration(labelText: "Ví"),
+                      items: _wallets
+                          .map<DropdownMenuItem<int>>((w) => DropdownMenuItem(
+                                value: w['id'],
+                                child: Text(w['wallet_name']),
+                              ))
+                          .toList(),
+                      onChanged: (val) => setState(() => _selectedWalletId = val),
+                      validator: (val) => val == null ? "Chọn ví" : null,
+                    ),
+                    const SizedBox(height: 16),
+                    // Chọn danh mục (ví dụ tạm)
+                    DropdownButtonFormField<int>(
+                      value: _selectedCategoryId,
+                      decoration: const InputDecoration(labelText: "Danh mục"),
+                      items: const [
+                        DropdownMenuItem(value: 1, child: Text("Ăn uống")),
+                        DropdownMenuItem(value: 2, child: Text("Thu nhập khác")),
+                      ],
+                      onChanged: (val) => setState(() => _selectedCategoryId = val),
+                      validator: (val) => val == null ? "Chọn danh mục" : null,
+                    ),
+                    const SizedBox(height: 16),
+                    // Chọn ngày
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text("Ngày giao dịch"),
+                      subtitle: Text(DateFormat("dd/MM/yyyy").format(_selectedDate)),
+                      trailing: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date != null) setState(() => _selectedDate = date);
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      onPressed: _saveTransaction,
+                      child: Text(widget.transaction == null ? "Thêm" : "Cập nhật"),
+                    ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _infoRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey[700]),
-        const SizedBox(width: 12),
-        Text("$label:", style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(width: 8),
-        Expanded(child: Text(value)),
-      ],
     );
   }
 }

@@ -143,4 +143,58 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('access_token');
   }
+
+  static Future<Map<String, dynamic>> getCurrentUser() async {
+    try {
+    final token = await getToken();
+    if (token == null) return {};
+
+    final res = await _dio.get(
+      '/profile',
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
+
+    if (res.statusCode == 200 && res.data['success'] == true) {
+      final data = res.data['user'];
+      return {
+        'id': data['id'],
+        'username': data['username'],
+        'email': data['email'],
+      };
+    }
+
+    return {};
+  } on DioException {
+    return {};
+  }
+  }
+
+  static Future<bool> updateProfile({
+  required String username,
+  required String email,
+}) async {
+  try {
+    final token = await getToken();
+    if (token == null) return false;
+
+    final res = await _dio.patch(
+      '/profile', 
+      data: {
+        'username': username,
+        'email': email,
+      },
+      options: Options(
+        headers: {"Authorization": "Bearer $token"},
+      ),
+    );
+
+    if (res.statusCode == 200 && res.data['success'] == true) {
+      return true;
+    }
+
+    return false;
+  } on DioException {
+    return false;
+  }
+}
 }
