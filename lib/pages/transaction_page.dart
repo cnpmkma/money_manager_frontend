@@ -47,29 +47,28 @@ class TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> _loadTransactions() async {
-  if (!mounted) return;
-  setState(() => _isLoading = true);
-
-  try {
-    final transactions = await TransactionService.getTransactions(
-      walletId: _selectedWalletId,
-    );
-    if (!mounted) return; // check lần nữa sau await
-
-    setState(() {
-      _transactions = transactions;
-      _sortTransactions();
-    });
-  } catch (e) {
-    debugPrint("Error fetching transactions: $e");
     if (!mounted) return;
-    setState(() => _transactions = []);
-  } finally {
-    if (!mounted) return;
-    setState(() => _isLoading = false);
+    setState(() => _isLoading = true);
+
+    try {
+      final transactions = await TransactionService.getTransactions(
+        walletId: _selectedWalletId,
+      );
+      if (!mounted) return; // check lần nữa sau await
+
+      setState(() {
+        _transactions = transactions;
+        _sortTransactions();
+      });
+    } catch (e) {
+      debugPrint("Error fetching transactions: $e");
+      if (!mounted) return;
+      setState(() => _transactions = []);
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
-}
-
 
   void _sortTransactions() {
     _transactions.sort((a, b) {

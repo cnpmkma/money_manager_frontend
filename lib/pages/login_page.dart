@@ -175,6 +175,66 @@ class _LoginState extends State<Login> {
                   ),
                 ],
               ),
+              const SizedBox(height: 40),
+
+              // Social login buttons
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Google button
+                  ElevatedButton.icon(
+                    onPressed: () {}, // Chưa có action
+                    icon: Image.asset(
+                      "assets/google_logo.png",
+                      width: 20,
+                      height: 20,
+                    ),
+                    label: const Text("Đăng nhập bằng Google"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Facebook button
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: Image.asset(
+                      "assets/facebook_logo.png",
+                      width: 20,
+                      height: 20,
+                    ),
+                    label: const Text("Đăng nhập bằng Facebook"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

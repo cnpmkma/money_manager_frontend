@@ -85,6 +85,8 @@ flutter:
     - "assets/skin_10.png"
     - "assets/skin_11.png"
     - "assets/skin_12.png"
+    - "assets/google_logo.png"
+    - "assets/facebook_logo.png"
     - ".env"
 
   # An image asset can refer to one or more resolution-specific "variants", see
