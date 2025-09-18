@@ -5,6 +5,8 @@ import '../services/transaction_service.dart';
 import '../services/wallet_service.dart';
 import '../widgets/gradient_scaffold.dart';
 import 'transaction_add_page.dart';
+import '../constants/category_icons.dart';
+
 
 class TransactionPage extends StatefulWidget {
   final Future<void> Function(BuildContext context)? onAdd;
@@ -230,12 +232,27 @@ class TransactionFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.deepPurple, width: 1),
+    );
+
     return Row(
       children: [
         Flexible(
           flex: 2,
           child: DropdownButtonFormField<String>(
-            initialValue: selectedType,
+            value: selectedType,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: border,
+              enabledBorder: border,
+              focusedBorder: border,
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.deepPurple),
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
             items: const [
               DropdownMenuItem(value: "all", child: Text("Tất cả")),
               DropdownMenuItem(value: "chi", child: Text("Chi")),
@@ -248,27 +265,55 @@ class TransactionFilterRow extends StatelessWidget {
         Flexible(
           flex: 2,
           child: DropdownButtonFormField<int?>(
-            initialValue: selectedWalletId,
+            value: selectedWalletId,
+            isExpanded: true, // <--- thêm dòng này
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: border,
+              enabledBorder: border,
+              focusedBorder: border,
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.deepPurple),
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
             items: [
               const DropdownMenuItem<int?>(
                 value: null,
-                child: Text("Tất cả ví"),
+                child: Text(
+                  "Tất cả ví",
+                  overflow: TextOverflow.ellipsis, 
+                ),
               ),
               ...wallets.map(
                 (w) => DropdownMenuItem<int?>(
                   value: w['id'] as int,
-                  child: Text(w['wallet_name']),
+                  child: Text(
+                    w['wallet_name'],
+                    overflow: TextOverflow.ellipsis, 
+                  ),
                 ),
               ),
             ],
             onChanged: onWalletChanged,
           ),
         ),
+
         const SizedBox(width: 8),
         Flexible(
           flex: 2,
           child: DropdownButtonFormField<String>(
-            initialValue: sortOrder,
+            value: sortOrder,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: border,
+              enabledBorder: border,
+              focusedBorder: border,
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.deepPurple),
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
             items: const [
               DropdownMenuItem(value: "desc", child: Text("Mới nhất")),
               DropdownMenuItem(value: "asc", child: Text("Cũ nhất")),
@@ -283,8 +328,8 @@ class TransactionFilterRow extends StatelessWidget {
   }
 }
 
-// Summary Card
-class SummaryCard extends StatelessWidget {
+
+class SummaryCard extends StatefulWidget {
   final List<dynamic> transactions;
   final String selectedType;
   final NumberFormat formatter;
@@ -297,58 +342,103 @@ class SummaryCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final filtered = transactions.where((tx) {
-      if (selectedType == "all") return true;
-      return selectedType == "thu"
+  State<SummaryCard> createState() => _SummaryCardState();
+}
+
+class _SummaryCardState extends State<SummaryCard> {
+  double totalIncome = 0;
+  double totalExpense = 0;
+
+  @override
+  void didUpdateWidget(covariant SummaryCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactions != widget.transactions || 
+        oldWidget.selectedType != widget.selectedType) {
+      _calculateTotals();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateTotals();
+  }
+
+  void _calculateTotals() {
+    final filtered = widget.transactions.where((tx) {
+      if (widget.selectedType == "all") return true;
+      return widget.selectedType == "thu"
           ? tx['category']['type'] == "thu"
           : tx['category']['type'] == "chi";
     }).toList();
 
-    final totalIncome = filtered
-        .where((tx) => tx['category']['type'] == "thu")
-        .fold<double>(0, (sum, tx) => sum + double.parse(tx['amount']));
-    final totalExpense = filtered
-        .where((tx) => tx['category']['type'] == "chi")
-        .fold<double>(0, (sum, tx) => sum + double.parse(tx['amount']));
+    setState(() {
+      totalIncome = filtered
+          .where((tx) => tx['category']['type'] == "thu")
+          .fold<double>(0, (sum, tx) => sum + double.parse(tx['amount']));
+      totalExpense = filtered
+          .where((tx) => tx['category']['type'] == "chi")
+          .fold<double>(0, (sum, tx) => sum + double.parse(tx['amount']));
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildCard(
+            label: "Thu nhập",
+            amount: totalIncome,
+            color: Colors.green,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildCard(
+            label: "Chi tiêu",
+            amount: totalExpense,
+            color: Colors.red,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCard({
+    required String label,
+    required double amount,
+    required Color color,
+  }) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        child: Column(
           children: [
-            Column(
-              children: [
-                const Text(
-                  "Thu nhập",
-                  style: TextStyle(color: Colors.green, fontSize: 20),
-                ),
-                Text(
-                  "+${formatter.format(totalIncome)}",
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            Column(
-              children: [
-                const Text(
-                  "Chi tiêu",
-                  style: TextStyle(color: Colors.red, fontSize: 20),
-                ),
-                Text(
-                  "-${formatter.format(totalExpense)}",
-                  style: const TextStyle(
-                    color: Colors.red,
+            const SizedBox(height: 8),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: amount),
+              duration: const Duration(milliseconds: 500),
+              builder: (context, value, child) {
+                return Text(
+                  "${amount >= 0 ? "+" : "-"} ${widget.formatter.format(value)}",
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ],
         ),
@@ -367,6 +457,8 @@ class TransactionItem extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
+  
+
   const TransactionItem({
     super.key,
     required this.title,
@@ -378,15 +470,25 @@ class TransactionItem extends StatelessWidget {
     this.onDelete,
   });
 
+  String truncateNote(String? note, {int charLimit = 20}) {
+    if (note == null) return '';
+    return note.length <= charLimit ? note : note.substring(0, charLimit) + '...';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 2,
       child: ListTile(
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-          child: Column(
+        leading: CircleAvatar(
+          backgroundColor: isIncome ? Colors.green.shade100 : Colors.red.shade100,
+          child: Icon(
+            categoryIcons[title] ?? Icons.category,
+            color: isIncome ? Colors.green : Colors.red,
+          ),
+        ),
+        title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -397,7 +499,7 @@ class TransactionItem extends StatelessWidget {
                 ),
               ),
               Text(
-                note ?? '',
+                truncateNote(note),
                 style: const TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 14,
@@ -405,7 +507,7 @@ class TransactionItem extends StatelessWidget {
                 ),
               ),
             ],
-          ),
+          
         ),
         trailing: Text(
           (isIncome ? "+ " : "- ") + formatter.format(amount),

@@ -60,21 +60,36 @@ class _WalletListPageState extends State<WalletListPage> {
                 if (index == _wallets.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddWalletPage(
-                              onWalletAdded: () {
-                                _fetchWallets(); // reload danh sách ví
-                              },
+                    child: Center(
+                      child: SizedBox(
+                        width: 200,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddWalletPage(
+                                  onWalletAdded: () {
+                                    _fetchWallets(); // reload danh sách ví
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text("Thêm ví mới"),
+                          style: ElevatedButton.styleFrom(
+                            elevation: 4,
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
+                            shadowColor: Colors.black26,
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text("Thêm ví mới"),
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -104,7 +119,7 @@ class _WalletListPageState extends State<WalletListPage> {
                         children: [
                           Text(
                             "${_formatter.format(balance)}₫",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                           PopupMenuButton<String>(
                             onSelected: (value) {
@@ -182,7 +197,7 @@ class _WalletListPageState extends State<WalletListPage> {
                                               );
                                             }
                                           },
-                                          child: const Text("Xóa"),
+                                          child: const Text("Xóa", style: TextStyle(color: Colors.white),),
                                         ),
                                       ],
                                     );
@@ -204,6 +219,7 @@ class _WalletListPageState extends State<WalletListPage> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 10,),
                     const Divider(height: 1),
                   ],
                 );

@@ -39,21 +39,28 @@ class _AccountPageState extends State<AccountPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Material(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         color: Colors.white,
-        elevation: 2,
+        elevation: 4,
+        shadowColor: Colors.black26,
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           leading: Container(
             decoration: BoxDecoration(
-              color:
-                  iconColor?.withOpacity(0.1) ?? Colors.blue.withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: (iconColor ?? Colors.blue).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.all(10),
-            child: Icon(icon, color: iconColor ?? Colors.blue),
+            child: Icon(icon, color: iconColor ?? Colors.blue, size: 28),
           ),
-          title: Text(title),
-          trailing: const Icon(Icons.chevron_right),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          trailing: const Icon(Icons.chevron_right, color: Colors.grey),
           onTap: onTap,
         ),
       ),
@@ -76,24 +83,53 @@ class _AccountPageState extends State<AccountPage> {
       ),
       body: ListView(
         children: [
-          const SizedBox(height: 20),
-          Center(
-            child: Column(
-              children: [
-                CircleAvatar(radius: 40, backgroundImage: AssetImage(avatar)),
-                const SizedBox(height: 10),
-                Text(
-                  username,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(email, style: const TextStyle(color: Colors.grey)),
-              ],
-            ),
-          ),
           const SizedBox(height: 30),
+          Center(
+  child: Column(
+    children: [
+      Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple.shade200, Colors.deepPurple.shade400],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(4), // độ dày viền
+        child: CircleAvatar(
+          radius: 50,
+          backgroundImage: AssetImage(avatar),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Text(
+        username,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.deepPurple,
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        email,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+      ),
+    ],
+  ),
+),
+          const SizedBox(height: 40),
 
           // Menu items
           buildMenuItem(
@@ -119,12 +155,8 @@ class _AccountPageState extends State<AccountPage> {
             iconColor: Colors.pink,
             onTap: () async {
               try {
-                // Lấy danh sách transactions
                 final transactions = await TransactionService.getTransactions();
-
-                // Xuất Excel
                 await ExportService.exportTransactionsToExcel(transactions);
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Xuất Excel thành công!")),
                 );
@@ -148,6 +180,7 @@ class _AccountPageState extends State<AccountPage> {
               );
             },
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );

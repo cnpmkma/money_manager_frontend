@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager_frontend/widgets/gradient_scaffold.dart';
+import 'package:money_manager_frontend/services/budget_service.dart';
+import 'package:money_manager_frontend/services/transaction_service.dart';
+import 'budget_edit_page.dart';
+import '../constants/category_icons.dart';
 
 class BudgetPage extends StatefulWidget {
   const BudgetPage({super.key});
@@ -9,33 +13,84 @@ class BudgetPage extends StatefulWidget {
 }
 
 class _BudgetPageState extends State<BudgetPage> {
-  // Fake data demo
-  final List<Map<String, dynamic>> _budgets = [
-    {
-      "category": "Ăn uống",
-      "limit": 1000.0,
-      "spent": 650.0,
-      "icon": Icons.restaurant,
-    },
-    {
-      "category": "Mua sắm",
-      "limit": 1500.0,
-      "spent": 1200.0,
-      "icon": Icons.shopping_bag,
-    },
-    {
-      "category": "Đi lại",
-      "limit": 500.0,
-      "spent": 200.0,
-      "icon": Icons.directions_car,
-    },
-    {
-      "category": "Giải trí",
-      "limit": 800.0,
-      "spent": 400.0,
-      "icon": Icons.movie,
-    },
-  ];
+  List<Map<String, dynamic>> _budgets = [];
+  bool _loadingOverview = true;
+  bool _loadingBudgets = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBudgets();
+  }
+
+  Future<void> _fetchBudgets() async {
+    setState(() {
+      _loadingOverview = true;
+      _loadingBudgets = true;
+    });
+
+    try {
+      final budgetData = await BudgetService.getBudgets();
+      final transactions = await TransactionService.getTransactions();
+
+      final budgets = budgetData
+          .where((item) => item['category']['type'] == 'chi')
+          .map((item) {
+        final categoryName = item['category']['category_name'];
+        final spent = transactions
+            .where((tx) =>
+                tx['category']['type'] == 'chi' &&
+                tx['category']['category_name'] == categoryName)
+            .fold<double>(0,
+                (sum, tx) => sum + double.tryParse(tx['amount'].toString())!);
+
+        return {
+          "id": item['id'],
+          "category": categoryName,
+          "limit": double.tryParse(item['max_amount'].toString()) ?? 0,
+          "spent": spent,
+          "type": item['category']['type'],
+        };
+      }).toList();
+
+      setState(() {
+        _budgets = budgets;
+        _loadingOverview = false;
+        _loadingBudgets = false;
+      });
+    } catch (e) {
+      print("Error fetching budgets: $e");
+      setState(() {
+        _loadingOverview = false;
+        _loadingBudgets = false;
+      });
+    }
+  }
+
+  Widget _buildOverviewItem(String label, double value,
+      {Color? valueColor}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "${value.toStringAsFixed(0)} đ",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: valueColor ?? Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,109 +111,150 @@ class _BudgetPageState extends State<BudgetPage> {
           children: [
             // Tổng quan
             Card(
-              elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Tổng quan tháng này",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+              elevation: 6,
+              shadowColor: Colors.black26,
+              child: _loadingOverview
+                  ? const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.deepPurple.shade50,
+                            Colors.deepPurple.shade100
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: const Text(
+                              "Tổng quan tháng này",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildOverviewItem("Hạn mức", totalLimit),
+                              _buildOverviewItem("Đã chi", totalSpent),
+                              _buildOverviewItem(
+                                "Còn lại",
+                                totalLimit - totalSpent,
+                                valueColor: (totalLimit - totalSpent) < 0
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text("Hạn mức: ${totalLimit.toStringAsFixed(0)} đ"),
-                    Text("Đã chi: ${totalSpent.toStringAsFixed(0)} đ"),
-                    Text(
-                      "Còn lại: ${(totalLimit - totalSpent).toStringAsFixed(0)} đ",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: (totalLimit - totalSpent) < 0
-                            ? Colors.red
-                            : Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
             const SizedBox(height: 20),
-
             const Text(
               "Ngân sách theo hạng mục",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 10),
-
-            // Danh sách ngân sách
             Expanded(
-              child: ListView.separated(
-                itemCount: _budgets.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final budget = _budgets[index];
-                  double percent = budget["spent"] / budget["limit"];
-                  bool overLimit = budget["spent"] > budget["limit"];
+              child: _loadingBudgets
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.separated(
+                      itemCount: _budgets.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final budget = _budgets[index];
+                        double percent = budget["limit"] == 0
+                            ? 0
+                            : budget["spent"] / budget["limit"];
+                        bool overLimit = budget["spent"] > budget["limit"];
 
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: overLimit
-                            ? Colors.red[100]
-                            : Colors.blue[100],
-                        child: Icon(
-                          budget["icon"],
-                          color: overLimit ? Colors.red : Colors.blue,
-                        ),
-                      ),
-                      title: Text(
-                        budget["category"],
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          LinearProgressIndicator(
-                            value: percent > 1 ? 1 : percent,
-                            backgroundColor: Colors.grey[200],
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              overLimit ? Colors.red : Colors.blue,
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditBudgetPage(
+                                    budgetId: budget["id"],
+                                    categoryName: budget["category"],
+                                    initialMaxAmount: budget["limit"],
+                                    onBudgetUpdated: _fetchBudgets,
+                                  ),
+                                ),
+                              );
+                            },
+                            leading: CircleAvatar(
+                              backgroundColor: overLimit
+                                  ? Colors.red[100]
+                                  : Colors.blue[100],
+                              child: Icon(
+                                categoryIcons[budget["category"]] ??
+                                    Icons.category,
+                                color: overLimit ? Colors.red : Colors.blue,
+                              ),
+                            ),
+                            title: Text(
+                              budget["category"],
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                LinearProgressIndicator(
+                                  value: percent > 1 ? 1 : percent,
+                                  backgroundColor: Colors.grey[200],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    overLimit ? Colors.red : Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "${budget["spent"].toStringAsFixed(0)} / ${budget["limit"].toStringAsFixed(0)} đ",
+                                  style: TextStyle(
+                                    color:
+                                        overLimit ? Colors.red : Colors.black87,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            trailing: Text(
+                              overLimit
+                                  ? "Vượt hạn mức"
+                                  : "${(budget["limit"] - budget["spent"]).toStringAsFixed(0)} đ còn lại",
+                              style: TextStyle(
+                                color: overLimit ? Colors.red : Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "${budget["spent"]} / ${budget["limit"]} đ",
-                            style: TextStyle(
-                              color: overLimit ? Colors.red : Colors.black87,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        overLimit
-                            ? "Vượt hạn mức"
-                            : "${(budget["limit"] - budget["spent"]).toStringAsFixed(0)} đ còn lại",
-                        style: TextStyle(
-                          color: overLimit ? Colors.red : Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
