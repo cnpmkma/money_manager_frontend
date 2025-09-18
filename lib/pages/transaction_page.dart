@@ -444,7 +444,7 @@ class _SummaryCardState extends State<SummaryCard> {
                   "${amount >= 0 ? "+" : "-"} ${widget.formatter.format(value)}",
                   style: TextStyle(
                     color: color,
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 );
