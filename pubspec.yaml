@@ -46,6 +46,7 @@ dependencies:
   path_provider: ^2.1.5
   permission_handler: ^12.0.1
   share_plus: ^12.0.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -114,3 +115,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/money_logo.png"
