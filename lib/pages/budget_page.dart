@@ -91,174 +91,161 @@ class _BudgetPageState extends State<BudgetPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    double totalLimit = _budgets.fold(0, (sum, b) => sum + b["limit"]);
-    double totalSpent = _budgets.fold(0, (sum, b) => sum + b["spent"]);
+Widget build(BuildContext context) {
+  double totalLimit = _budgets.fold(0, (sum, b) => sum + b["limit"]);
+  double totalSpent = _budgets.fold(0, (sum, b) => sum + b["spent"]);
 
-    return GradientScaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
-        title: const Text("Ngân sách"),
-        centerTitle: true,
-      ),
-      body: Padding(
+  return GradientScaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.black,
+      title: const Text("Ngân sách"),
+      centerTitle: true,
+    ),
+    body: RefreshIndicator(
+      onRefresh: _fetchBudgets, // gọi lại API budgets
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(), // để vuốt được cả khi ít dữ liệu
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Tổng quan
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 6,
-              shadowColor: Colors.black26,
-              child: _loadingOverview
-                  ? const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  : Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.deepPurple.shade50,
-                            Colors.deepPurple.shade100,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+        children: [
+          // Tổng quan
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 6,
+            shadowColor: Colors.black26,
+            child: _loadingOverview
+                ? const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Tổng quan tháng này",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: const Text(
-                              "Tổng quan tháng này",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.deepPurple,
-                              ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildOverviewItem("Hạn mức", totalLimit),
+                            _buildOverviewItem("Đã chi", totalSpent),
+                            _buildOverviewItem(
+                              "Còn lại",
+                              totalLimit - totalSpent,
+                              valueColor: (totalLimit - totalSpent) < 0
+                                  ? Colors.red
+                                  : Colors.green,
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildOverviewItem("Hạn mức", totalLimit),
-                              _buildOverviewItem("Đã chi", totalSpent),
-                              _buildOverviewItem(
-                                "Còn lại",
-                                totalLimit - totalSpent,
-                                valueColor: (totalLimit - totalSpent) < 0
-                                    ? Colors.red
-                                    : Colors.green,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Ngân sách theo hạng mục",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: _loadingBudgets
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.separated(
-                      itemCount: _budgets.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final budget = _budgets[index];
-                        double percent = budget["limit"] == 0
-                            ? 0
-                            : budget["spent"] / budget["limit"];
-                        bool overLimit = budget["spent"] > budget["limit"];
+                  ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            "Ngân sách theo hạng mục",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 10),
 
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+          // danh sách budgets
+          if (_loadingBudgets)
+            const Center(child: CircularProgressIndicator())
+          else
+            ..._budgets.map((budget) {
+              double percent = budget["limit"] == 0
+                  ? 0
+                  : budget["spent"] / budget["limit"];
+              bool overLimit = budget["spent"] > budget["limit"];
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditBudgetPage(
+                            budgetId: budget["id"],
+                            categoryName: budget["category"],
+                            initialMaxAmount: budget["limit"],
+                            onBudgetUpdated: _fetchBudgets,
                           ),
-                          child: ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditBudgetPage(
-                                    budgetId: budget["id"],
-                                    categoryName: budget["category"],
-                                    initialMaxAmount: budget["limit"],
-                                    onBudgetUpdated: _fetchBudgets,
-                                  ),
-                                ),
-                              );
-                            },
-                            leading: CircleAvatar(
-                              backgroundColor: overLimit
-                                  ? Colors.red[100]
-                                  : Colors.blue[100],
-                              child: Icon(
-                                categoryIcons[budget["category"]] ??
-                                    Icons.category,
-                                color: overLimit ? Colors.red : Colors.blue,
-                              ),
-                            ),
-                            title: Text(
-                              budget["category"],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                LinearProgressIndicator(
-                                  value: percent > 1 ? 1 : percent,
-                                  backgroundColor: Colors.grey[200],
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    overLimit ? Colors.red : Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "${budget["spent"].toStringAsFixed(0)} / ${budget["limit"].toStringAsFixed(0)} đ",
-                                  style: TextStyle(
-                                    color: overLimit
-                                        ? Colors.red
-                                        : Colors.black87,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Text(
-                              overLimit
-                                  ? "Vượt hạn mức"
-                                  : "${(budget["limit"] - budget["spent"]).toStringAsFixed(0)} đ còn lại",
-                              style: TextStyle(
-                                color: overLimit ? Colors.red : Colors.green,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                        ),
+                      );
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          overLimit ? Colors.red[100] : Colors.blue[100],
+                      child: Icon(
+                        categoryIcons[budget["category"]] ?? Icons.category,
+                        color: overLimit ? Colors.red : Colors.blue,
+                      ),
                     ),
-            ),
-          ],
-        ),
+                    title: Text(
+                      budget["category"],
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LinearProgressIndicator(
+                          value: percent > 1 ? 1 : percent,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            overLimit ? Colors.red : Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${budget["spent"].toStringAsFixed(0)} / ${budget["limit"].toStringAsFixed(0)} đ",
+                          style: TextStyle(
+                            color: overLimit ? Colors.red : Colors.black87,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: Text(
+                      overLimit
+                          ? "Vượt hạn mức"
+                          : "${(budget["limit"] - budget["spent"]).toStringAsFixed(0)} đ còn lại",
+                      style: TextStyle(
+                        color: overLimit ? Colors.red : Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
