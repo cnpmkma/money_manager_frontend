@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:money_manager_frontend/pages/login_page.dart';
-import 'package:money_manager_frontend/pages/register_page.dart';
-import 'package:money_manager_frontend/pages/home_page.dart';
-import 'package:money_manager_frontend/pages/main_layout.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:money_manager_frontend/routes.dart';
+import 'package:money_manager_frontend/services/auth_service.dart';
+import 'package:money_manager_frontend/theme.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());
@@ -19,26 +17,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Money MATE",
-      theme: ThemeData(
-        primarySwatch: Colors.pink,
-        textTheme: GoogleFonts.interTextTheme(),
-        scaffoldBackgroundColor: Colors.grey[100],
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.pink,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          showUnselectedLabels: true
-        )
+      title: "Money Mate",
+      theme: appTheme,
+      routes: AppRoutes.getRoutes(),
+      home: FutureBuilder(
+        future: AuthService.getLoginStatus(),
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          if (!snapshot.hasData) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return snapshot.data!
+              ? AppRoutes.getRoutes()[AppRoutes.main]!(context)
+              : AppRoutes.getRoutes()[AppRoutes.login]!(context);
+        },
       ),
-      // Trang đầu tiên khi chạy
-      home: Login(),
-      routes: {
-        '/login': (context) => Login(),
-        '/register': (context) => Register(),
-        '/main': (context) => MainLayout()
-      },
     );
   }
 }
