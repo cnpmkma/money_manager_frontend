@@ -7,7 +7,6 @@ import '../widgets/gradient_scaffold.dart';
 import 'transaction_add_page.dart';
 import '../constants/category_icons.dart';
 
-
 class TransactionPage extends StatefulWidget {
   final Future<void> Function(BuildContext context)? onAdd;
 
@@ -244,7 +243,10 @@ class TransactionFilterRow extends StatelessWidget {
           child: DropdownButtonFormField<String>(
             value: selectedType,
             decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               border: border,
               enabledBorder: border,
               focusedBorder: border,
@@ -268,7 +270,10 @@ class TransactionFilterRow extends StatelessWidget {
             value: selectedWalletId,
             isExpanded: true, // <--- thêm dòng này
             decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               border: border,
               enabledBorder: border,
               focusedBorder: border,
@@ -280,17 +285,14 @@ class TransactionFilterRow extends StatelessWidget {
             items: [
               const DropdownMenuItem<int?>(
                 value: null,
-                child: Text(
-                  "Tất cả ví",
-                  overflow: TextOverflow.ellipsis, 
-                ),
+                child: Text("Tất cả ví", overflow: TextOverflow.ellipsis),
               ),
               ...wallets.map(
                 (w) => DropdownMenuItem<int?>(
                   value: w['id'] as int,
                   child: Text(
                     w['wallet_name'],
-                    overflow: TextOverflow.ellipsis, 
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -305,7 +307,10 @@ class TransactionFilterRow extends StatelessWidget {
           child: DropdownButtonFormField<String>(
             value: sortOrder,
             decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               border: border,
               enabledBorder: border,
               focusedBorder: border,
@@ -327,7 +332,6 @@ class TransactionFilterRow extends StatelessWidget {
     );
   }
 }
-
 
 class SummaryCard extends StatefulWidget {
   final List<dynamic> transactions;
@@ -352,7 +356,7 @@ class _SummaryCardState extends State<SummaryCard> {
   @override
   void didUpdateWidget(covariant SummaryCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.transactions != widget.transactions || 
+    if (oldWidget.transactions != widget.transactions ||
         oldWidget.selectedType != widget.selectedType) {
       _calculateTotals();
     }
@@ -457,8 +461,6 @@ class TransactionItem extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
-  
-
   const TransactionItem({
     super.key,
     required this.title,
@@ -472,7 +474,9 @@ class TransactionItem extends StatelessWidget {
 
   String truncateNote(String? note, {int charLimit = 20}) {
     if (note == null) return '';
-    return note.length <= charLimit ? note : note.substring(0, charLimit) + '...';
+    return note.length <= charLimit
+        ? note
+        : note.substring(0, charLimit) + '...';
   }
 
   @override
@@ -482,32 +486,30 @@ class TransactionItem extends StatelessWidget {
       elevation: 2,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: isIncome ? Colors.green.shade100 : Colors.red.shade100,
+          backgroundColor: isIncome
+              ? Colors.green.shade100
+              : Colors.red.shade100,
           child: Icon(
             categoryIcons[title] ?? Icons.category,
             color: isIncome ? Colors.green : Colors.red,
           ),
         ),
         title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              truncateNote(note),
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+                color: Colors.grey,
               ),
-              Text(
-                truncateNote(note),
-                style: const TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          
+            ),
+          ],
         ),
         trailing: Text(
           (isIncome ? "+ " : "- ") + formatter.format(amount),

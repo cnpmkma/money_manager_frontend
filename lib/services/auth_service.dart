@@ -48,11 +48,7 @@ class AuthService {
     try {
       final res = await _dio.post(
         "/register",
-        data: {
-          "username": username,
-          "email": email,
-          "password": password,
-        },
+        data: {"username": username, "email": email, "password": password},
       );
 
       if (res.statusCode == 201 || res.data['success'] == true) {
@@ -62,10 +58,14 @@ class AuthService {
           "user": res.data["user"],
         };
       } else {
-        return {"success": false, "message": res.data["message"] ?? "Đăng ký thất bại"};
+        return {
+          "success": false,
+          "message": res.data["message"] ?? "Đăng ký thất bại",
+        };
       }
     } on DioException catch (e) {
-      final message = e.response?.data?["message"] ?? e.message ?? "Đăng ký thất bại";
+      final message =
+          e.response?.data?["message"] ?? e.message ?? "Đăng ký thất bại";
       return {"success": false, "message": message};
     }
   }
@@ -103,8 +103,14 @@ class AuthService {
         };
       }
     } on DioException catch (e) {
-      final message = e.response?.data?["message"] ?? e.message ?? "Lỗi kết nối";
-      return {"success": false, "access_token": null, "user": null, "message": message};
+      final message =
+          e.response?.data?["message"] ?? e.message ?? "Lỗi kết nối";
+      return {
+        "success": false,
+        "access_token": null,
+        "user": null,
+        "message": message,
+      };
     }
   }
 

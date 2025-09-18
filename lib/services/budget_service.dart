@@ -53,9 +53,7 @@ class BudgetService {
     final token = await AuthService.getToken();
     final res = await _dio.put(
       "/budgets/$id",
-      data: {
-        if (maxAmount != null) "max_amount": maxAmount,
-      },
+      data: {if (maxAmount != null) "max_amount": maxAmount},
       options: Options(headers: {"Authorization": "Bearer $token"}),
     );
     return Map<String, dynamic>.from(res.data);

@@ -119,7 +119,10 @@ class _WalletListPageState extends State<WalletListPage> {
                         children: [
                           Text(
                             "${_formatter.format(balance)}₫",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           PopupMenuButton<String>(
                             onSelected: (value) {
@@ -197,7 +200,12 @@ class _WalletListPageState extends State<WalletListPage> {
                                               );
                                             }
                                           },
-                                          child: const Text("Xóa", style: TextStyle(color: Colors.white),),
+                                          child: const Text(
+                                            "Xóa",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     );
@@ -219,7 +227,7 @@ class _WalletListPageState extends State<WalletListPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10,),
+                    SizedBox(height: 10),
                     const Divider(height: 1),
                   ],
                 );

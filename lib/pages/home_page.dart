@@ -212,7 +212,7 @@ class WalletCard extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(height: 10,),
+                    SizedBox(height: 10),
                     const Divider(height: 1),
                   ],
                 );

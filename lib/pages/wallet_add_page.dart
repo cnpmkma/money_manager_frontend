@@ -32,8 +32,9 @@ class _AddWalletPageState extends State<AddWalletPage> {
       Navigator.pop(context);
     } catch (e) {
       debugPrint("Error adding wallet: $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Thêm ví thất bại")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Thêm ví thất bại")));
     } finally {
       setState(() => _loading = false);
     }
@@ -71,7 +72,7 @@ class _AddWalletPageState extends State<AddWalletPage> {
                           color: Colors.black26,
                           blurRadius: 8,
                           offset: Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: ClipOval(
@@ -87,7 +88,8 @@ class _AddWalletPageState extends State<AddWalletPage> {
                 // Form card
                 Card(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   elevation: 5,
                   shadowColor: Colors.black26,
                   child: Padding(
@@ -106,8 +108,9 @@ class _AddWalletPageState extends State<AddWalletPage> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide:
-                                    const BorderSide(color: Colors.deepPurple),
+                                borderSide: const BorderSide(
+                                  color: Colors.deepPurple,
+                                ),
                               ),
                             ),
                             validator: (v) =>
@@ -123,8 +126,9 @@ class _AddWalletPageState extends State<AddWalletPage> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide:
-                                    const BorderSide(color: Colors.deepPurple),
+                                borderSide: const BorderSide(
+                                  color: Colors.deepPurple,
+                                ),
                               ),
                             ),
                             keyboardType: TextInputType.number,
@@ -156,7 +160,8 @@ class _AddWalletPageState extends State<AddWalletPage> {
                                       setState(() => _selectedSkin = skin),
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 6),
+                                      horizontal: 6,
+                                    ),
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
                                       border: Border.all(
@@ -215,9 +220,10 @@ class _AddWalletPageState extends State<AddWalletPage> {
                     : const Text(
                         "Thêm ví",
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
               ),
             ),

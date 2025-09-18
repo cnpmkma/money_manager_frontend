@@ -44,7 +44,10 @@ class _AccountPageState extends State<AccountPage> {
         elevation: 4,
         shadowColor: Colors.black26,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 12,
+          ),
           leading: Container(
             decoration: BoxDecoration(
               color: (iconColor ?? Colors.blue).withOpacity(0.15),
@@ -55,10 +58,7 @@ class _AccountPageState extends State<AccountPage> {
           ),
           title: Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           trailing: const Icon(Icons.chevron_right, color: Colors.grey),
           onTap: onTap,
@@ -85,50 +85,50 @@ class _AccountPageState extends State<AccountPage> {
         children: [
           const SizedBox(height: 30),
           Center(
-  child: Column(
-    children: [
-      Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple.shade200, Colors.deepPurple.shade400],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8,
-              offset: Offset(0, 4),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.deepPurple.shade200,
+                        Colors.deepPurple.shade400,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(4), // độ dày viền
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage(avatar),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  username,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  email,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
             ),
-          ],
-        ),
-        padding: const EdgeInsets.all(4), // độ dày viền
-        child: CircleAvatar(
-          radius: 50,
-          backgroundImage: AssetImage(avatar),
-        ),
-      ),
-      const SizedBox(height: 12),
-      Text(
-        username,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
-        ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        email,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
-        ),
-      ),
-    ],
-  ),
-),
+          ),
           const SizedBox(height: 40),
 
           // Menu items
@@ -158,11 +158,21 @@ class _AccountPageState extends State<AccountPage> {
                 final transactions = await TransactionService.getTransactions();
                 await ExportService.exportTransactionsToExcel(transactions);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Xuất Excel thành công!")),
+                  const SnackBar(
+                    content: Text("Xuất Excel thành công!"),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.all(16),
+                  ),
                 );
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Lỗi khi xuất Excel: $e")),
+                  SnackBar(
+                    content: Text("Lỗi khi xuất Excel: $e"),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.all(16),
+                  ),
                 );
               }
             },

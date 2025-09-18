@@ -47,8 +47,9 @@ class _EditWalletPageState extends State<EditWalletPage> {
       widget.onWalletUpdated();
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Lỗi khi cập nhật ví: $e")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi khi cập nhật ví: $e")));
     } finally {
       setState(() => _loading = false);
     }
@@ -72,7 +73,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
               children: [
-                SizedBox(height: 40,),
+                SizedBox(height: 40),
                 // ---- Skin preview top ----
                 Center(
                   child: Container(
@@ -87,7 +88,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
                           color: Colors.black26,
                           blurRadius: 8,
                           offset: Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: ClipOval(
@@ -103,7 +104,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
                 // ---- Form card ----
                 Card(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   elevation: 5,
                   shadowColor: Colors.black26,
                   child: Padding(
@@ -123,7 +125,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                    color: Colors.deepPurple),
+                                  color: Colors.deepPurple,
+                                ),
                               ),
                             ),
                             validator: (v) =>
@@ -154,7 +157,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
                                       setState(() => _selectedSkin = skin),
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 6),
+                                      horizontal: 6,
+                                    ),
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
                                       border: Border.all(
@@ -180,7 +184,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.2), 
+                SizedBox(height: screenHeight * 0.2),
               ],
             ),
           ),
@@ -213,9 +217,10 @@ class _EditWalletPageState extends State<EditWalletPage> {
                     : const Text(
                         "Lưu thay đổi",
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
               ),
             ),

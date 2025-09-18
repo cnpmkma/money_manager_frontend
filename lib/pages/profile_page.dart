@@ -44,13 +44,11 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: success ? Colors.green : Colors.red,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      )
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
 
-    if (success) loadUser(); 
+    if (success) loadUser();
   }
 
   @override
@@ -68,108 +66,108 @@ class _ProfilePageState extends State<ProfilePage> {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-  children: [
-    // Avatar với border gradient
-    Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [Colors.deepPurple, Colors.purpleAccent],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: CircleAvatar(
-        radius: 62,
-        backgroundColor: Colors.white,
-        child: CircleAvatar(
-          radius: 58,
-          backgroundImage: AssetImage(avatar),
-        ),
-      ),
-    ),
-    const SizedBox(height: 16),
-    // Username
-    Text(
-      _usernameController.text,
-      style: const TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: Colors.deepPurple,
-      ),
-      textAlign: TextAlign.center,
-    ),
-    const SizedBox(height: 4),
-    // Email
-    Text(
-      _emailController.text,
-      style: const TextStyle(
-        fontSize: 16,
-        color: Colors.grey,
-      ),
-      textAlign: TextAlign.center,
-    ),
-    const SizedBox(height: 24),
-    // Form fields card
-    Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      elevation: 4,
-      shadowColor: Colors.black26,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: "Tên hiển thị",
-                prefixIcon: const Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                children: [
+                  // Avatar với border gradient
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Colors.deepPurple, Colors.purpleAccent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 62,
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 58,
+                        backgroundImage: AssetImage(avatar),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Username
+                  Text(
+                    _usernameController.text,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  // Email
+                  Text(
+                    _emailController.text,
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  // Form fields card
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 4,
+                    shadowColor: Colors.black26,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _usernameController,
+                            decoration: InputDecoration(
+                              labelText: "Tên hiển thị",
+                              prefixIcon: const Icon(Icons.person),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: "Email",
+                              prefixIcon: const Icon(Icons.email),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Button gradient
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: updateProfile,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        backgroundColor: Colors.deepPurple,
+                        elevation: 4,
+                      ),
+                      child: const Text(
+                        "Cập nhật",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                prefixIcon: const Icon(Icons.email),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-    const SizedBox(height: 24),
-    // Button gradient
-    SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: updateProfile,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          backgroundColor: Colors.deepPurple, 
-          elevation: 4,
-        ),
-        child: const Text(
-          "Cập nhật",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-      ),
-    ),
-  ],
-)
-,
             ),
     );
   }

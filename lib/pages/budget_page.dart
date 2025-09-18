@@ -36,22 +36,27 @@ class _BudgetPageState extends State<BudgetPage> {
       final budgets = budgetData
           .where((item) => item['category']['type'] == 'chi')
           .map((item) {
-        final categoryName = item['category']['category_name'];
-        final spent = transactions
-            .where((tx) =>
-                tx['category']['type'] == 'chi' &&
-                tx['category']['category_name'] == categoryName)
-            .fold<double>(0,
-                (sum, tx) => sum + double.tryParse(tx['amount'].toString())!);
+            final categoryName = item['category']['category_name'];
+            final spent = transactions
+                .where(
+                  (tx) =>
+                      tx['category']['type'] == 'chi' &&
+                      tx['category']['category_name'] == categoryName,
+                )
+                .fold<double>(
+                  0,
+                  (sum, tx) => sum + double.tryParse(tx['amount'].toString())!,
+                );
 
-        return {
-          "id": item['id'],
-          "category": categoryName,
-          "limit": double.tryParse(item['max_amount'].toString()) ?? 0,
-          "spent": spent,
-          "type": item['category']['type'],
-        };
-      }).toList();
+            return {
+              "id": item['id'],
+              "category": categoryName,
+              "limit": double.tryParse(item['max_amount'].toString()) ?? 0,
+              "spent": spent,
+              "type": item['category']['type'],
+            };
+          })
+          .toList();
 
       setState(() {
         _budgets = budgets;
@@ -67,18 +72,11 @@ class _BudgetPageState extends State<BudgetPage> {
     }
   }
 
-  Widget _buildOverviewItem(String label, double value,
-      {Color? valueColor}) {
+  Widget _buildOverviewItem(String label, double value, {Color? valueColor}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
         const SizedBox(height: 4),
         Text(
           "${value.toStringAsFixed(0)} đ",
@@ -128,7 +126,7 @@ class _BudgetPageState extends State<BudgetPage> {
                         gradient: LinearGradient(
                           colors: [
                             Colors.deepPurple.shade50,
-                            Colors.deepPurple.shade100
+                            Colors.deepPurple.shade100,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -218,7 +216,8 @@ class _BudgetPageState extends State<BudgetPage> {
                             title: Text(
                               budget["category"],
                               style: const TextStyle(
-                                  fontWeight: FontWeight.w600),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,8 +233,9 @@ class _BudgetPageState extends State<BudgetPage> {
                                 Text(
                                   "${budget["spent"].toStringAsFixed(0)} / ${budget["limit"].toStringAsFixed(0)} đ",
                                   style: TextStyle(
-                                    color:
-                                        overLimit ? Colors.red : Colors.black87,
+                                    color: overLimit
+                                        ? Colors.red
+                                        : Colors.black87,
                                     fontSize: 12,
                                   ),
                                 ),

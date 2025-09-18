@@ -29,8 +29,9 @@ class _EditBudgetPageState extends State<EditBudgetPage> {
   @override
   void initState() {
     super.initState();
-    _amountController =
-        TextEditingController(text: widget.initialMaxAmount.toStringAsFixed(0));
+    _amountController = TextEditingController(
+      text: widget.initialMaxAmount.toStringAsFixed(0),
+    );
   }
 
   Future<void> _updateBudget() async {
@@ -55,9 +56,9 @@ class _EditBudgetPageState extends State<EditBudgetPage> {
       widget.onBudgetUpdated();
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi khi cập nhật ngân sách: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi khi cập nhật ngân sách: $e")));
     } finally {
       setState(() => _loading = false);
     }
@@ -78,7 +79,8 @@ class _EditBudgetPageState extends State<EditBudgetPage> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
+                borderRadius: BorderRadius.circular(20),
+              ),
               elevation: 6,
               shadowColor: Colors.black26,
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -92,7 +94,10 @@ class _EditBudgetPageState extends State<EditBudgetPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
-                          colors: [Colors.deepPurple.shade200, Colors.deepPurple.shade400],
+                          colors: [
+                            Colors.deepPurple.shade200,
+                            Colors.deepPurple.shade400,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -139,13 +144,16 @@ class _EditBudgetPageState extends State<EditBudgetPage> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.deepPurple),
+                            borderSide: const BorderSide(
+                              color: Colors.deepPurple,
+                            ),
                           ),
                         ),
                         keyboardType: TextInputType.number,
                         validator: (v) {
                           if (v == null || v.isEmpty) return "Nhập hạn mức";
-                          if (double.tryParse(v) == null) return "Hạn mức phải là số";
+                          if (double.tryParse(v) == null)
+                            return "Hạn mức phải là số";
                           return null;
                         },
                       ),
@@ -176,9 +184,10 @@ class _EditBudgetPageState extends State<EditBudgetPage> {
                             : const Text(
                                 "Lưu thay đổi",
                                 style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                       ),
                     ),
