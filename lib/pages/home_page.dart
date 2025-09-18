@@ -37,6 +37,7 @@ class _HomeState extends State<Home> {
   Future<void> _fetchWallets() async {
     try {
       final wallets = await WalletService.getWallets();
+      if (!mounted) return;
       setState(() {
         _wallets = wallets;
         totalBalance = _wallets.fold(
@@ -447,6 +448,7 @@ class _TransactionCardState extends State<TransactionCard> {
           b['transaction_date'],
         ).compareTo(DateTime.parse(a['transaction_date'])),
       );
+      if (!mounted) return;
       setState(() {
         _transactions = txs.take(5).toList(); 
         _loading = false;
