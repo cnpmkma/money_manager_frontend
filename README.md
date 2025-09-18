@@ -1,16 +1,24 @@
-# money_manager_frontend
+# Tên Project
 
-A new Flutter project.
+Money Mate: ứng dụng quản lý giao dịch và thống kê giao dịch
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Yêu cầu
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter >= 3.x
+- Dart >= 3.x
+- Android Studio / VSCode
+- Git
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Clone project
+
+```bash
+git clone https://github.com/username/repo.git
+cd repo
+flutter pub get
+flutter run
+```
+
