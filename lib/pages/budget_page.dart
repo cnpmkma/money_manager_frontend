@@ -58,6 +58,7 @@ class _BudgetPageState extends State<BudgetPage> {
           })
           .toList();
 
+      if (!mounted) return;
       setState(() {
         _budgets = budgets;
         _loadingOverview = false;

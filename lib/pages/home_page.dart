@@ -448,7 +448,7 @@ class _TransactionCardState extends State<TransactionCard> {
         ).compareTo(DateTime.parse(a['transaction_date'])),
       );
       setState(() {
-        _transactions = txs.take(5).toList(); // chỉ lấy 5 giao dịch gần nhất
+        _transactions = txs.take(5).toList(); 
         _loading = false;
       });
     } catch (e) {
