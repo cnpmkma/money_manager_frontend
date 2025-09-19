@@ -25,6 +25,7 @@ class _AccountPageState extends State<AccountPage> {
 
   void loadUser() async {
     final data = await AuthService.getCurrentUser();
+    if (!mounted) return;
     setState(() {
       user = data;
     });
